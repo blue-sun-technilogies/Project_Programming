@@ -2,7 +2,7 @@
 import os
 import codecs
 
-def main(percent, late_time):
+def main(percent, late_time, file_name):
     def first_data_check(data):
         if data[0][0] == '':
             for i in range(0, len(data) + 1):
@@ -14,7 +14,7 @@ def main(percent, late_time):
 
     def read_info(file_name):
         data = []
-        file_name = codecs.open(r'C:\Users\Denis\Documents\HSE\Progs\Final_project\1.csv', 'r', 'utf-8')
+        file_name = codecs.open(file_name, 'r', 'utf-8')
         for line in file_name:
             chec_to_sit_in_end = False #Finding the place of data
             if (line[0].isdigit() and line[1].isdigit() and line[2] == '.') or chec_to_sit_in_end:
@@ -129,8 +129,8 @@ def main(percent, late_time):
 
 
 
-
-    data = read_info(r'C:\Users\Denis\Documents\HSE\Progs\Final_project\Data2.csv')
+    data = read_info(file_name)
+    #data = read_info(r'C:\Users\Denis\Documents\HSE\Progs\Final_project\1.csv')
     data = first_data_check(data)
     data = qurent_date(data)
 
@@ -156,9 +156,9 @@ def main(percent, late_time):
     start_date = data[0][0]
     last_date = data[len(data) - 1][0]
     fee_to_pay = 0
-    fee_to_pay_previous = fee_to_pay #For output
-    current_outcomes_date = outcomes_updated[0][0]
-    current_incomes_date = incomes_updated[0][0]
+    #fee_to_pay_previous = fee_to_pay #For output
+    #current_outcomes_date = outcomes_updated[0][0]
+    #current_incomes_date = incomes_updated[0][0]
     current_incomes_number = 0 #The number of incomes with which we are workig
     current_outcomes_number = 0
     not_used_outcomes = 0
