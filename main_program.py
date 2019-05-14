@@ -1,8 +1,16 @@
 from tkinter import *
+from tkinter import filedialog as fd
 import os 
 import codecs
 import Tr_6
 
+
+def insert_file():
+    global file_name
+    file_name = fd.askopenfilename()
+    label_File.config(text = file_name)
+    return(file_name)
+    
 
 
 
@@ -31,7 +39,7 @@ def start(percent, time):
                 label_Error.config(text = f'{late_time} это не целое число')
                 break
     if start:
-        Tr_6.main(float(Percent) / 100, int(late_time))
+        Tr_6.main(float(Percent) / 100, int(late_time), file_name)
     return(0)
 
 
@@ -58,6 +66,8 @@ label_Time = Label(root, text = 'Количество дней на оплату
 label_Time.place(x = 50, y = 75)
 label_Error = Label(root, text = '')
 label_Error.place(x = 230, y = 250)
+label_File = Label(root, text = '                        ')
+label_File.place(x = 50, y = 100)
 
 
 entry_Percent = Entry(root)
@@ -69,5 +79,11 @@ entry_Time.place(x = 300, y = 76)
 button_Main = Button(root, text = 'Press')
 button_Main.bind('<Button-1>', lambda event: start(entry_Percent.get(), entry_Time.get()))
 button_Main.place(x = 240, y = 300)
+button_File = Button(root, text = 'Выбор файла', command = insert_file)
+#button_File.bind('<Button-2>', lambda event: insert_file())
+button_File.place(x = 240, y = 100)
+
+
+
 
 root.mainloop()
