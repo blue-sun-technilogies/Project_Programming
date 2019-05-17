@@ -2,7 +2,7 @@ from tkinter import *
 from tkinter import filedialog as fd
 import os 
 import codecs
-
+import io
 
 
 def insert_file():
@@ -11,6 +11,12 @@ def insert_file():
     label_File.config(text = file_name)
     return(file_name)
     
+
+def output_file_fun():
+    global output_file_name
+    output_file_name = fd.asksaveasfilename() + '.txt'
+    #print(output_file_name)
+
 
 def start(percent, time):
     label_Error.config(text = '')
@@ -42,7 +48,7 @@ def start(percent, time):
 
 
 def main(percent, late_time, file_name):
-    def first_data_check(data):
+    def first_data_check(data): #This function check the position of th einformation in the fike
         if data[0][0] == '':
             for i in range(0, len(data) + 1):
                 data[i][0] = data[i][6]
@@ -51,11 +57,12 @@ def main(percent, late_time, file_name):
                 data[i][5] = data[i][11]
         return(data)
 
-    def read_info(file_name):
+
+    def read_info(file_name): #Add check of all lines
         data = []
-        file_name = codecs.open(file_name, 'r', 'utf-8')
+        file_name = codecs.open(file_name, 'r', 'utf-8') #We should check the coding sistem
+        chec_to_sit_in_end = False #Finding the place of data
         for line in file_name:
-            chec_to_sit_in_end = False #Finding the place of data
             if (line[0].isdigit() and line[1].isdigit() and line[2] == '.') or chec_to_sit_in_end:
                 part = line.split(',')
                 row = [
@@ -66,23 +73,25 @@ def main(percent, late_time, file_name):
                         part[13]
                     ]
                 data.append(row)
-            else:
+            elif (chec_to_sit_in_end == False):
                 part = line.split(',')
                 if part[0] == '' and len(part) > 6:
-                    if part[6][0].isdigit() and part[6][1].isdigit and part[6][2] == '.':
-                        row = [
-                        part[0], part[1], part[2], part[3],
-                        part[4], part[5], part[6], part[7],
-                        part[8], part[9], part[10],
-                        part[11], part[12], part[12],
-                        part[13]
-                        ]
-                        data.append(row)
-                        chec_to_sit_in_end =True
+                    if len(part[6]) >= 3:
+                        if part[6][0].isdigit() and part[6][1].isdigit and part[6][2] == '.':
+                            row = [
+                            part[0], part[1], part[2], part[3],
+                            part[4], part[5], part[6], part[7],
+                            part[8], part[9], part[10],
+                            part[11], part[12], part[12],
+                            part[13]
+                            ]
+                            data.append(row)
+                            chec_to_sit_in_end =True
+        file_name.close()#######
         return data
 
 
-    def update_outcomes(outcomes):
+    def update_outcomes(outcomes): #Special for calculation
         outcomes_updated = []
         i = 0
         while i < len(outcomes):
@@ -117,7 +126,6 @@ def main(percent, late_time, file_name):
         first_year_date = int(data[0][0][6] + data[0][0][7])
         for i in range(0, len(data)):
             current_year = int(data[i][0][6] + data[i][0][7])
-
             querent_day = int(data[i][0][0]) * 10 + int(data[i][0][1])
             querent_month = int(data[i][0][3]) * 10 + int(data[i][0][4])
             if querent_month == 1:
@@ -169,24 +177,16 @@ def main(percent, late_time, file_name):
             data[i][0] = date
         return data
 
-
-
-
-
-
-
-
-
+        def back_date(data): #This function convert date in a noramal format 
+            return(0)
 
 
     data = read_info(file_name)
     data = first_data_check(data)
     data = qurent_date(data)
 
-
     incomes = []
     outcomes = []
-
 
     for i in range(0, len(data)):
         if data[i][1][0] == 'П' and data[i][1][3] == 'х':
@@ -211,8 +211,6 @@ def main(percent, late_time, file_name):
     current_incomes_number = 0 #The number of incomes with which we are workig
     current_outcomes_number = 0
     not_used_outcomes = 0
-    #late_time = 1
-    #percent = 0.01
     check_to_enter_outcomes = True #Not to go in unnessesary part of the program in the last steps
 
     fee_fedbak_final = []
@@ -276,9 +274,6 @@ def main(percent, late_time, file_name):
         else:
          #   print(f'Задолженность за {i} день составляет 0 рублей, штраф составляет {fee_fedbak} рублей')
             fee_fedbak_final.append([i, 0, fee_fedbak])
-
-
-
         i += 1
 
     output_list = []
@@ -290,9 +285,10 @@ def main(percent, late_time, file_name):
                 fff_start = fee_fedbak_final[i + 1][0]
         else:
             output_list.append(f'За {fee_fedbak_final[i][0] - fff_start + 1} дней с {fff_start} по {fee_fedbak_final[i][0]} задолженность составила {(fee_fedbak_final[i][0] - fff_start + 1) * fee_fedbak_final[i][1]} штраф {(fee_fedbak_final[i][0] - fff_start + 1) * fee_fedbak_final[i][2]}')
-            
 
-    print(fee_to_pay)
+    with io.open(output_file_name, 'w', encoding = ("utf-8")) as fo:
+        for i in range(0, len(output_list)):
+            fo.write(output_list[i] + '\n')
     
 
 
@@ -332,7 +328,8 @@ button_Main.bind('<Button-1>', lambda event: start(entry_Percent.get(), entry_Ti
 button_Main.place(x = 240, y = 300)
 button_File = Button(root, text = 'Выбор файла', command = insert_file)
 button_File.place(x = 240, y = 100)
-
+button_Output_File = Button(root, text = 'Вывод ответа', command = output_file_fun)
+button_Output_File.place(x = 240, y = 150)
 
 
 
