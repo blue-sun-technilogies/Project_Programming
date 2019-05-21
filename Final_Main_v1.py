@@ -10,7 +10,14 @@ def insert_file():
     file_name = fd.askopenfilename()
     label_File.config(text = file_name)
     return(file_name)
-    
+
+
+def working_days():#This function check do we need to work with only working days or no
+    global working_d
+    working_d = True
+    button_Workinf_days.config(bg = 'green')
+    return(0)
+
 
 def output_file_fun():
     global output_file_name
@@ -89,6 +96,10 @@ def main(percent, late_time, file_name):
                             chec_to_sit_in_end =True
         file_name.close()#######
         return data
+
+
+    def days_work(data):
+        return(0)
 
 
     def update_outcomes(outcomes): #Special for calculation
@@ -175,100 +186,105 @@ def main(percent, late_time, file_name):
 
             date = querent_day + querent_month + ((current_year - first_year_date) * 365)
             data[i][0] = date
-        return data
+        return ([data, first_year_date])
 
-        def back_date(date): #This function convert date in a noramal format 
-            day = 0
-            month = 0
-            year = 0
-            while date > 366: ####
-                into = False #This technical variable for 
-                if date % 4 == 0:
-                    year += 1
-                    date -= 365
-                    into = True
-                elif (into == False):
-                    year += 1
-                    date -= 366
-            if date == 366 and (year + first_year_date) % 4 != 0:
-                date -= 365
+    def back_date(date, first_year_date): #This function convert date in a noramal format 
+        day = 0
+        month = 0
+        year = 0
+        while date > 366: ####
+            into = False #This technical variable for 
+            if date % 4 == 0:
                 year += 1
-            year += first_year_date
-            if date <= 31: #January
-                month = 1
-                day = date
-            elif date <= 59 and year % 4 != 0:#February
-                month = 2
-                day = date - 31
-            elif date <= 60 and year % 4 == 0:
-                month = 2
-                day = date - 31
-            elif date <= 90 and year % 4 != 0: #March
-                month = 3
-                day = date - 59
-            elif date <= 91 and year % 4 == 0:
-                month = 3
-                day = date - 60
-            elif date <= 120 and year % 4 != 0: #April
-                month = 4
-                day = date - 90
-            elif date <= 121 and year % 4 == 0:
-                month = 4
-                day = date - 91
-            elif date <= 151 and year % 4 != 0: #May
-                month = 5
-                day = date - 120
-            elif date <= 152 and year % 4 == 0:
-                month = 5
-                day = date - 121
-            elif date <= 181 and year % 4 != 0: #June 
-                month = 6
-                day = date - 151
-            elif date <= 182 and year % 4 == 0:
-                month = 6
-                day = date - 152
-            elif date <= 212 and year % 4 != 0: #Jule 
-                month = 7
-                day = date - 181
-            elif date <= 213 and  year % 4 == 0:
-                month = 7
-                day = date - 182
-            elif date <= 243 and year % 4 != 0: #August
-                month = 8
-                day = date - 212
-            elif date <= 244 and year % 4 == 0:
-                month = 8
-                day = date - 213
-            elif date <= 273 and year % 4 != 0: #September
-                month = 9
-                day = date - 243
-            elif date <= 274 and year % 4 == 0:
-                month = 9 
-                day = date - 244
-            elif date <= 304 and year % 4 != 0: #October:
-                month = 10
-                day = date - 273
-            elif date <= 305 and year % 4 == 0:
-                month = 10
-                day = date - 274
-            elif date <= 334 and year % 4 != 0: #November
-                month = 11
-                day = date - 304
-            elif date <= 335 and year % 4 == 0:
-                month = 11
-                day = date - 305
-            elif date <= 365 and year % 4 != 0: #January
-                month = 12
-                day = date - 334
-            elif date <= 366 and year % 4 == 0:
-                month = 12
-                day = date - 335
-            return([day, month, year])
+                date -= 365
+                into = True
+            elif (into == False):
+                year += 1
+                date -= 366
+        if date == 366 and (year + first_year_date) % 4 != 0:
+            date -= 365
+            year += 1
+        year += first_year_date
+        if date <= 31: #January
+            month = 1
+            day = date
+        elif date <= 59 and year % 4 != 0:#February
+            month = 2
+            day = date - 31
+        elif date <= 60 and year % 4 == 0:
+            month = 2
+            day = date - 31
+        elif date <= 90 and year % 4 != 0: #March
+            month = 3
+            day = date - 59
+        elif date <= 91 and year % 4 == 0:
+            month = 3
+            day = date - 60
+        elif date <= 120 and year % 4 != 0: #April
+            month = 4
+            day = date - 90
+        elif date <= 121 and year % 4 == 0:
+            month = 4
+            day = date - 91
+        elif date <= 151 and year % 4 != 0: #May
+            month = 5
+            day = date - 120
+        elif date <= 152 and year % 4 == 0:
+            month = 5
+            day = date - 121
+        elif date <= 181 and year % 4 != 0: #June 
+            month = 6
+            day = date - 151
+        elif date <= 182 and year % 4 == 0:
+            month = 6
+            day = date - 152
+        elif date <= 212 and year % 4 != 0: #Jule 
+            month = 7
+            day = date - 181
+        elif date <= 213 and  year % 4 == 0:
+            month = 7
+            day = date - 182
+        elif date <= 243 and year % 4 != 0: #August
+            month = 8
+            day = date - 212
+        elif date <= 244 and year % 4 == 0:
+            month = 8
+            day = date - 213
+        elif date <= 273 and year % 4 != 0: #September
+            month = 9
+            day = date - 243
+        elif date <= 274 and year % 4 == 0:
+            month = 9 
+            day = date - 244
+        elif date <= 304 and year % 4 != 0: #October:
+            month = 10
+            day = date - 273
+        elif date <= 305 and year % 4 == 0:
+            month = 10
+            day = date - 274
+        elif date <= 334 and year % 4 != 0: #November
+            month = 11
+            day = date - 304
+        elif date <= 335 and year % 4 == 0:
+            month = 11
+            day = date - 305
+        elif date <= 365 and year % 4 != 0: #January
+            month = 12
+            day = date - 334
+        elif date <= 366 and year % 4 == 0:
+            month = 12
+            day = date - 335
+        day = str(day)
+        month = str(month)
+        year = str(year)
+        return(day + '.' + month + '.' + year)
 
 
     data = read_info(file_name)
     data = first_data_check(data)
-    data = qurent_date(data)
+    u_d = qurent_date(data)#Special variable not to call the function two times
+    data = u_d[0]
+    first_year_date = u_d[1]
 
     incomes = []
     outcomes = []
@@ -362,18 +378,19 @@ def main(percent, late_time, file_name):
         i += 1
 
     output_list = []
-    fff_start = fee_fedbak_final[0][0]
+    fff_start = fee_fedbak_final[0][0] #This is the first day from which we start calculation 
     for i in range(0, len(fee_fedbak_final)):
         if i + 1 <= len(fee_fedbak_final) - 1:
             if fee_fedbak_final[i][1] != fee_fedbak_final[i + 1][1]:
-                output_list.append(f'За {fee_fedbak_final[i][0] - fff_start + 1} дней с {fff_start} по {fee_fedbak_final[i][0]} задолженность составила {(fee_fedbak_final[i][0] - fff_start + 1) * fee_fedbak_final[i][1]} штраф {(fee_fedbak_final[i][0] - fff_start + 1) * fee_fedbak_final[i][2]}')
+                output_list.append(f'За {fee_fedbak_final[i][0] - fff_start + 1} дней с {back_date(fff_start, first_year_date)} по {back_date(fee_fedbak_final[i][0], first_year_date)} задолженность составила {(fee_fedbak_final[i][0] - fff_start + 1) * fee_fedbak_final[i][1]} штраф {(fee_fedbak_final[i][0] - fff_start + 1) * fee_fedbak_final[i][2]}')
                 fff_start = fee_fedbak_final[i + 1][0]
         else:
-            output_list.append(f'За {fee_fedbak_final[i][0] - fff_start + 1} дней с {fff_start} по {fee_fedbak_final[i][0]} задолженность составила {(fee_fedbak_final[i][0] - fff_start + 1) * fee_fedbak_final[i][1]} штраф {(fee_fedbak_final[i][0] - fff_start + 1) * fee_fedbak_final[i][2]}')
+            output_list.append(f'За {fee_fedbak_final[i][0] - fff_start + 1} дней с {back_date(fff_start, first_year_date)} по {back_date(fee_fedbak_final[i][0], first_year_date)} задолженность составила {(fee_fedbak_final[i][0] - fff_start + 1) * fee_fedbak_final[i][1]} штраф {(fee_fedbak_final[i][0] - fff_start + 1) * fee_fedbak_final[i][2]}')
 
-    with io.open(output_file_name, 'w', encoding = ("utf-8")) as fo:
+    with io.open(output_file_name, 'w', encoding = ("utf-16")) as fo:
         for i in range(0, len(output_list)):
             fo.write(output_list[i] + '\n')
+    fo.close()
     
 
 
@@ -411,11 +428,14 @@ entry_Time.place(x = 300, y = 76)
 button_Main = Button(root, text = 'Press')
 button_Main.bind('<Button-1>', lambda event: start(entry_Percent.get(), entry_Time.get()))
 button_Main.place(x = 240, y = 300)
+
 button_File = Button(root, text = 'Выбор файла', command = insert_file)
 button_File.place(x = 240, y = 100)
+
 button_Output_File = Button(root, text = 'Вывод ответа', command = output_file_fun)
 button_Output_File.place(x = 240, y = 150)
 
-
+button_Workinf_days = Button(root, text = 'Учитывать рабочие дни', command = working_days)
+button_Workinf_days.place(x = 240, y = 200)
 
 root.mainloop()
