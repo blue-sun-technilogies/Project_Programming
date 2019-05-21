@@ -14,7 +14,7 @@ def insert_file():
 
 def output_file_fun():
     global output_file_name
-    output_file_name = fd.asksaveasfilename() + '.txt'
+    output_file_name = fd.asksaveasfilename() + '.doc'
     #print(output_file_name)
 
 
@@ -177,8 +177,93 @@ def main(percent, late_time, file_name):
             data[i][0] = date
         return data
 
-        def back_date(data): #This function convert date in a noramal format 
-            return(0)
+        def back_date(date): #This function convert date in a noramal format 
+            day = 0
+            month = 0
+            year = 0
+            while date > 366: ####
+                into = False #This technical variable for 
+                if date % 4 == 0:
+                    year += 1
+                    date -= 365
+                    into = True
+                elif (into == False):
+                    year += 1
+                    date -= 366
+            if date == 366 and (year + first_year_date) % 4 != 0:
+                date -= 365
+                year += 1
+            year += first_year_date
+            if date <= 31: #January
+                month = 1
+                day = date
+            elif date <= 59 and year % 4 != 0:#February
+                month = 2
+                day = date - 31
+            elif date <= 60 and year % 4 == 0:
+                month = 2
+                day = date - 31
+            elif date <= 90 and year % 4 != 0: #March
+                month = 3
+                day = date - 59
+            elif date <= 91 and year % 4 == 0:
+                month = 3
+                day = date - 60
+            elif date <= 120 and year % 4 != 0: #April
+                month = 4
+                day = date - 90
+            elif date <= 121 and year % 4 == 0:
+                month = 4
+                day = date - 91
+            elif date <= 151 and year % 4 != 0: #May
+                month = 5
+                day = date - 120
+            elif date <= 152 and year % 4 == 0:
+                month = 5
+                day = date - 121
+            elif date <= 181 and year % 4 != 0: #June 
+                month = 6
+                day = date - 151
+            elif date <= 182 and year % 4 == 0:
+                month = 6
+                day = date - 152
+            elif date <= 212 and year % 4 != 0: #Jule 
+                month = 7
+                day = date - 181
+            elif date <= 213 and  year % 4 == 0:
+                month = 7
+                day = date - 182
+            elif date <= 243 and year % 4 != 0: #August
+                month = 8
+                day = date - 212
+            elif date <= 244 and year % 4 == 0:
+                month = 8
+                day = date - 213
+            elif date <= 273 and year % 4 != 0: #September
+                month = 9
+                day = date - 243
+            elif date <= 274 and year % 4 == 0:
+                month = 9 
+                day = date - 244
+            elif date <= 304 and year % 4 != 0: #October:
+                month = 10
+                day = date - 273
+            elif date <= 305 and year % 4 == 0:
+                month = 10
+                day = date - 274
+            elif date <= 334 and year % 4 != 0: #November
+                month = 11
+                day = date - 304
+            elif date <= 335 and year % 4 == 0:
+                month = 11
+                day = date - 305
+            elif date <= 365 and year % 4 != 0: #January
+                month = 12
+                day = date - 334
+            elif date <= 366 and year % 4 == 0:
+                month = 12
+                day = date - 335
+            return([day, month, year])
 
 
     data = read_info(file_name)
