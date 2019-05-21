@@ -5,8 +5,8 @@ import codecs
 import io
 
 
-def insert_file():
-    global file_name
+def insert_file():#This fuction need to find the name of the file
+    global file_name #This variable is the name of the inputed file
     file_name = fd.askopenfilename()
     label_File.config(text = file_name)
     return(file_name)
@@ -19,18 +19,18 @@ def working_days():#This function check do we need to work with only working day
     return(0)
 
 
-def output_file_fun():
-    global output_file_name
+def output_file_fun():#This function is need to find the name of output file
+    global output_file_name #This variable is the name of the output file
     output_file_name = fd.asksaveasfilename() + '.doc'
     #print(output_file_name)
+    return(0)
 
-
-def start(percent, time):
-    label_Error.config(text = '')
-    start = True
+def start(percent, time): #The main function from which all other functions are started
+    label_Error.config(text = '') #The label for errors to the user
+    start = True #The variable to check if the progrma can start or not
     point_in_percent = False #Checking for point in percent
-    Percent = percent
-    late_time = time
+    Percent = percent#From the user entered percent to the main progrem
+    late_time = time#From the user entered how many days shoul be waited before the fees started
     if Percent == '' or late_time == '':
         label_Error.config(text = 'Поля ввода не заполнены')
         start = False
@@ -50,7 +50,7 @@ def start(percent, time):
                 label_Error.config(text = f'{late_time} это не целое число')
                 break
     if start:
-        main(float(Percent) / 100, int(late_time), file_name)
+        main(float(Percent) / 100, int(late_time), file_name)#The beggining ot the program
     return(0)
 
 
@@ -102,7 +102,7 @@ def main(percent, late_time, file_name):
         return(0)
 
 
-    def update_outcomes(outcomes): #Special for calculation
+    def update_outcomes(outcomes): #Special for calculation, this function united information from one day
         outcomes_updated = []
         i = 0
         while i < len(outcomes):
@@ -117,7 +117,7 @@ def main(percent, late_time, file_name):
         return(outcomes_updated)
 
 
-    def incomes_update(incomes):
+    def incomes_update(incomes):#This function is needed for calculation, again united the information from one day
         incomes_updated = []
         i = 0
         while i < len(incomes):
@@ -133,7 +133,7 @@ def main(percent, late_time, file_name):
 
 
 
-    def qurent_date(data):
+    def qurent_date(data):#This function is need for calculation it transfer the dates to a numbers, which are used for calculation
         first_year_date = int(data[0][0][6] + data[0][0][7])
         for i in range(0, len(data)):
             current_year = int(data[i][0][6] + data[i][0][7])
@@ -280,7 +280,7 @@ def main(percent, late_time, file_name):
         return(day + '.' + month + '.' + year)
 
 
-    data = read_info(file_name)
+    data = read_info(file_name)#This is the first input of data 
     data = first_data_check(data)
     u_d = qurent_date(data)#Special variable not to call the function two times
     data = u_d[0]
@@ -289,7 +289,7 @@ def main(percent, late_time, file_name):
     incomes = []
     outcomes = []
 
-    for i in range(0, len(data)):
+    for i in range(0, len(data)):#This part shoul be rewrited, in fact tehre are 4 main and one additional type of words and we should separete them
         if data[i][1][0] == 'П' and data[i][1][3] == 'х':
             data[i][5] = float(data[i][5])
             incomes.append(data[i])
@@ -303,7 +303,7 @@ def main(percent, late_time, file_name):
 
 
 
-    start_date = data[0][0]
+    start_date = data[0][0]#This is the first date for calculation
     last_date = data[len(data) - 1][0]
     fee_to_pay = 0
     #fee_to_pay_previous = fee_to_pay #For output
@@ -311,7 +311,7 @@ def main(percent, late_time, file_name):
     #current_incomes_date = incomes_updated[0][0]
     current_incomes_number = 0 #The number of incomes with which we are workig
     current_outcomes_number = 0
-    not_used_outcomes = 0
+    not_used_outcomes = 0#This variable is needed to remember all money which was not paied 
     check_to_enter_outcomes = True #Not to go in unnessesary part of the program in the last steps
 
     fee_fedbak_final = []
@@ -322,7 +322,7 @@ def main(percent, late_time, file_name):
     i = start_date
     while i <= last_date:
         check_to_enter = True
-        if not_used_outcomes != 0:
+        if not_used_outcomes != 0:#Check for the elder outcomes for which user still need to pay
             if incomes_updated[current_incomes_number][5] - not_used_outcomes >= 0: 
                 incomes_updated[current_incomes_number][5] -= not_used_outcomes
                 not_used_outcomes = 0
@@ -333,7 +333,7 @@ def main(percent, late_time, file_name):
 
 
         
-        if outcomes_updated[current_outcomes_number][0] == i and check_to_enter_outcomes:
+        if outcomes_updated[current_outcomes_number][0] == i and check_to_enter_outcomes:#Check if next outcome is going to be today
             if incomes_updated[current_incomes_number][5] - outcomes_updated[current_outcomes_number][3] >= 0:
                 incomes_updated[current_incomes_number][5] -= outcomes_updated[current_outcomes_number][3]
                 outcomes_updated[current_outcomes_number][3] = 0
@@ -352,7 +352,7 @@ def main(percent, late_time, file_name):
                 i -= 1
                 check_to_enter = False
         
-        if i - incomes_updated[current_incomes_number][0] > late_time and check_to_enter:
+        if i - incomes_updated[current_incomes_number][0] > late_time and check_to_enter: #Start checkingfor fees
             fee_fedbak = 0
             current_sum_to_pay = incomes_updated[current_incomes_number][5] #Used for output in final
             fee_to_pay += (percent) * (incomes_updated[current_incomes_number][5])
@@ -387,7 +387,7 @@ def main(percent, late_time, file_name):
         else:
             output_list.append(f'За {fee_fedbak_final[i][0] - fff_start + 1} дней с {back_date(fff_start, first_year_date)} по {back_date(fee_fedbak_final[i][0], first_year_date)} задолженность составила {(fee_fedbak_final[i][0] - fff_start + 1) * fee_fedbak_final[i][1]} штраф {(fee_fedbak_final[i][0] - fff_start + 1) * fee_fedbak_final[i][2]}')
 
-    with io.open(output_file_name, 'w', encoding = ("utf-16")) as fo:
+    with io.open(output_file_name, 'w', encoding = ("utf-16")) as fo:#In this function all the information is outputed to the doc format
         for i in range(0, len(output_list)):
             fo.write(output_list[i] + '\n')
     fo.close()
