@@ -3,21 +3,28 @@ from tkinter import filedialog as fd
 import os 
 import codecs
 import io
+from platform import system
+import re
 
 
 def insert_file():#This fuction need to find the name of the file
     global file_name #This variable is the name of the inputed file
     file_name = fd.askopenfilename()
-    label_File.config(text = file_name)
+    label_File.config(text=file_name)
     return(file_name)
 
 
 def working_days():#This function check do we need to work with only working days or no
     global working_d
     working_d = True
-    button_Workinf_days.config(bg = 'green')
+    bnt_working_days.config(bg='green')
     return(0)
 
+def calendar_days():
+    global calendar_d
+    calendar_d = True
+    bnt_calendar_days.config(bg='red')
+    return(0)
 
 def output_file_fun():#This function is need to find the name of output file
     global output_file_name #This variable is the name of the output file
@@ -25,14 +32,15 @@ def output_file_fun():#This function is need to find the name of output file
     #print(output_file_name)
     return(0)
 
+
 def start(percent, time): #The main function from which all other functions are started
-    label_Error.config(text = '') #The label for errors to the user
+    label_Error.config(text='') #The label for errors to the user
     start = True #The variable to check if the progrma can start or not
     point_in_percent = False #Checking for point in percent
     Percent = percent#From the user entered percent to the main progrem
     late_time = time#From the user entered how many days shoul be waited before the fees started
     if Percent == '' or late_time == '':
-        label_Error.config(text = 'Поля ввода не заполнены')
+        label_Error.config(text='Поля ввода не заполнены')
         start = False
     for i in range(0, len(Percent)):
         if Percent[i].isdigit() == False and start:
@@ -398,48 +406,150 @@ def main(percent, late_time, file_name):
             fo.write(output_list[i] + '\n')
     fo.close()
 
-window = Tk()
-window.title('Калькулятор задолжности')
-window.iconbitmap("logoo.gif")  #не показывается иконка
-x = (window.winfo_screenwidth() - window.winfo_reqwidth()) / 2
-y = (window.winfo_screenheight() - window.winfo_reqheight()) / 2
-window.wm_geometry("+%d+%d" % (x, y))
-
-canvas = Canvas(window, width=850, height=650, bg='lightgrey')
-
-
-
-window.mainloop()
 
 '''
-label_Percent = Label(window, text = 'Введите штрафной процент (число с разделительной точкой)')
-label_Percent.place(x = 50, y = 50)
-label_Time = Label(window, text = 'Введите количество дней на оплату (целое число)')
-label_Time.place(x = 50, y = 75)
-label_Error = Label(window, text = '')
-label_Error.place(x = 230, y = 250)
-label_File = Label(window, text = '                        ')
-label_File.place(x = 50, y = 100)
+
+4) Добиться появлении иконки
++5) Добиться появления иконки с названием группы в верхней части оконного приложение
++6) Сделать кнопки с вопросами круглыми
+7) При наведении  мышки на кнопку "?" высвечивается комментарий к заполнению text box
+8) путь к файлу ВВОДА
+'''
+
+# Center the window with given width and height.
+def center_window(root, width=300, height=200):
+    # get screen width and height
+    screen_width = root.winfo_screenwidth()
+    screen_height = root.winfo_screenheight()
+
+    # calculate position x and y coordinates
+    x = (screen_width/2) - (width/2)
+    y = (screen_height/2) - (height/2)
+    root.geometry('%dx%d+%d+%d' % (width, height, x, y))
+
+def clean():
+    entry_Percent.delete(0, len(entry_Percent.get()))
+    entry_Time.delete(0, len(entry_Time.get()))
 
 
-entry_Percent = Entry(window)
-entry_Percent.place(x = 360, y = 51)
-entry_Time = Entry(window)
-entry_Time.place(x = 300, y = 76)
+def button_colour_change(event):
+    # print('button_colour_change')
+    bnt_calendar_days['fg'] = "red"
+    bnt_calendar_days['activeforeground'] = "red"
+    # bnt_calendar_days['selectbackground'] = "red"
+
+root = Tk()
+
+root.title('Калькулятор задолжности')# name of the window application.
+#root.iconbitmap(r'final.png') # НЕ ОТОБРАЖАЕТСЯ
+root.resizable(False, False)
+
+center_window(root, 700, 600) # window size.
+
+canvas = Canvas(root, width=700, height=600, bg='lightgrey')
+canvas.pack()
+
+#Icon for window - ПРОВЕРИТЬ НА ПЛАТФОРМЕ windows
+platformD = system()
+if platformD == 'Darwin':
+    img = Image("photo", file="icon.gif") #GIF
+    root.call('wm', 'iconphoto', root._w, img)
+elif platformD == 'Windows':
+    logo_image = 'icon.ico'
+    root.iconbitmap(logo_image)
+else:
+    logo_image = '@logo.xbm'
+    root.iconbitmap(logo_image)
+
+#Image for window
+original_photo = PhotoImage(file='final.png')
+display_photo = original_photo.subsample(9, 9)
+canvas.create_image(330, 10, anchor=NW, image=display_photo)
+
+# Lables of the window application
+lable_choose_file = Label(root, text='Выберите файл:', bg='grey', fg='white', font='Courier 20')
+lable_choose_file.place(x=30, y=70)
+label_Percent = Label(root, text = 'Введите штрафной процент: ', bg='grey', fg='white', font='Courier 20')
+label_Percent.place(x=30, y=130)
+label_Time = Label(root, text='Введите количество \n'
+                                'дней на оплату: ', bg='grey', fg='white', font='Courier 20')
+label_Time.place(x=30, y=190)
+lable_place_output = Label(root, text='Выберите место \n'
+                                      'для сохранения файла:', bg='grey', fg='white', font='Courier 20')
+lable_place_output.place(x=30, y=320)
+
+label_Error = Label(root, text='', bg='lightgrey', fg='lightgrey')
+label_Error.place(x=230, y=250)
+label_File = Label(root, text='', bg='lightgrey', fg='lightgrey')
+label_File.place(x=50, y=100)
 
 
-button_Main = Button(window, text = 'Press')
+# Text boxes of the window application
+entry_Percent = Entry(root)
+entry_Percent.place(x=400, y=132)
+entry_Time = Entry(root)
+entry_Time.place(x=400, y=200)
+
+
+# Buttons of the window application
+button_Main = Button(root, text='Пуск!', bg='grey', fg='black', font='Courier 20')
 button_Main.bind('<Button-1>', lambda event: start(entry_Percent.get(), entry_Time.get()))
-button_Main.place(x = 240, y = 300)
+button_Main.place(x=325, y=420)
 
-button_File = Button(window, text = 'Выбор файла', command = insert_file)
-button_File.place(x = 240, y = 100)
 
-button_Output_File = Button(window, text = 'Вывод ответа', command = output_file_fun)
-button_Output_File.place(x = 240, y = 150)
+button_File = Button(root, text='Выбор файла: ', command=insert_file)
+button_Main.bind('<Button-2>')
+button_File.place(x=400, y=75)
 
-button_Workinf_days = Button(window, text = 'Учитывать рабочие дни', command = working_days)
-button_Workinf_days.place(x = 240, y = 200)
-'''
+button_Output_File = Button(root, text='Выберите файл:', command=output_file_fun)
+button_Output_File.bind('<Button-3>')
+button_Output_File.place(x=400, y=335)
+
+btn_clean = Button(root, text='Очистить', bg='grey', fg='black', font='Courier 20', command=clean)
+btn_clean.bind('<Button-4>')
+btn_clean.place(x=580, y=420)
+
+
+bnt_calendar_days = Button(text='Календарные дни')
+bnt_calendar_days.place(x=400, y=270)
+bnt_calendar_days.bind('<Button-5>', button_colour_change) # bind event: Press this button
+bnt_calendar_days.bind('<Return>', button_colour_change)   # bind event: press Enter (when focus)
+
+
+bnt_working_days = Button(root, text='Рабочие дни', bg='grey', fg='black')#, command=working_days)
+bnt_working_days.bind('<Button-6>')
+bnt_working_days.place(x=200, y=270)
+
+
+#Image for Button(?)
+or_bnt_photo = PhotoImage(file='question.png')
+re_bnt_photo = or_bnt_photo.subsample(20, 20)
+
+# Button(?)
+bnt_question_1 = Button(root)
+bnt_question_1.config(image=re_bnt_photo, height=25, width=25)
+bnt_question_1.bind('<Button-7>')
+bnt_question_1.place(x=650, y=132)
+
+
+
+bnt_question_2 = Button(root)
+bnt_question_2.config(image=re_bnt_photo, height=25, width=25)
+bnt_question_2.bind('<Button-8>')
+bnt_question_2.place(x=650, y=202)
+
+bnt_question_3 = Button(root)
+bnt_question_3.config(image=re_bnt_photo, height=25, width=25)
+bnt_question_3.bind('<Button-9>')
+bnt_question_3.place(x=650, y=270)
+
+bnt_question_4 = Button(root)
+bnt_question_4.config(image=re_bnt_photo, height=25, width=25)
+bnt_question_4.bind('<Button-10')
+bnt_question_4.place(x=650, y=335)
+
+
+root.mainloop()
+
 
 
