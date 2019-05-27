@@ -50,12 +50,10 @@ class HoverInfo(Menu):
 
 
 def insert_file():#This fuction need to find the name of the file
-    #global file_name #This variable is the name of the inputed file
-    #file_name = fd.askopenfilename()
-    #label_File.config(text=file_name)
-    #return(file_name)
+    global file_name #This variable is the name of the inputed file
     global button_File
-    button_File.config(text=askopenfilename())
+    file_name = fd.askopenfilename()
+    button_File.config(file_name)
 
 
 def working_days():#This function check do we need to work with only working days or no
@@ -73,7 +71,6 @@ def calendar_days():
 def output_file_fun():#This function is need to find the name of output file
     global output_file_name #This variable is the name of the output file
     output_file_name = fd.asksaveasfilename() + '.doc'
-    #print(output_file_name)
     return(0)
 
 
@@ -371,9 +368,6 @@ def main(percent, late_time, file_name):
     start_date = data[0][0]#This is the first date for calculation
     last_date = data[len(data) - 1][0]
     fee_to_pay = 0
-    #fee_to_pay_previous = fee_to_pay #For output
-    #current_outcomes_date = outcomes_updated[0][0]
-    #current_incomes_date = incomes_updated[0][0]
     current_incomes_number = 0 #The number of incomes with which we are workig
     current_outcomes_number = 0
     not_used_outcomes = 0#This variable is needed to remember all money which was not paied 
@@ -423,14 +417,12 @@ def main(percent, late_time, file_name):
             fee_to_pay += (percent) * (incomes_updated[current_incomes_number][5])
             fee_fedbak = (percent) * (incomes_updated[current_incomes_number][5])
             j = 1
-            #print(fee_to_pay)
             if incomes_updated[current_incomes_number][0] != last_date and current_incomes_number + j <= (len(incomes_updated) - current_incomes_number):
                 while i - incomes_updated[current_incomes_number + j][0] > late_time:
                     fee_to_pay += (percent) * (incomes_updated[current_incomes_number + j][5])
                     current_sum_to_pay += incomes_updated[current_incomes_number + j][5]
                     fee_fedbak += (percent) * (incomes_updated[current_incomes_number + j][5])
                     j += 1
-                    #print(fee_to_pay)
                     if incomes_updated[current_incomes_number][0] == last_date or j == (len(incomes_updated) - current_incomes_number):
                         break
         
