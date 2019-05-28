@@ -1,7 +1,3 @@
-'''
-Shirmankina Ekaterina - Final_Main_v5 - 27/05/2019 - 11:30
-TODO определение количества дней
-'''
 from tkinter import *
 from tkinter import filedialog as fd
 import os 
@@ -10,7 +6,6 @@ import io
 from platform import system
 import re
 from tkinter.filedialog import askopenfilename
-from datetime import datetime
 
 class HoverInfo(Menu):
     '''
@@ -55,12 +50,10 @@ class HoverInfo(Menu):
 
 
 def insert_file():#This fuction need to find the name of the file
-    #global file_name #This variable is the name of the inputed file
-    #file_name = fd.askopenfilename()
-    #label_File.config(text=file_name)
-    #return(file_name)
+    global file_name #This variable is the name of the inputed file
     global button_File
-    button_File.config(text=askopenfilename())
+    file_name = fd.askopenfilename()
+    button_File.config(file_name)
 
 
 def working_days():#This function check do we need to work with only working days or no
@@ -78,24 +71,39 @@ def calendar_days():
 def output_file_fun():#This function is need to find the name of output file
     global output_file_name #This variable is the name of the output file
     output_file_name = fd.asksaveasfilename() + '.doc'
-    #print(output_file_name)
     return(0)
 
 
 def start(percent, time): #The main function from which all other functions are started
     label_Error.config(text='') #The label for errors to the user
+    label_Percent.place(x = 30, y = 130)
+    label_Error.place_forget()
+    label_Time.place(x = 30, y = 200)
+    entry_Percent.config(bg = 'white', fg = 'black')
+    entry_Time.config(bg = 'white', fg = 'black')
+    #label_Error.place(x = 30, y = 320)
+    #bnt_question_4.place_forget()
+    #button_Output_File.place_forget()
     start = True #The variable to check if the progrma can start or not
     point_in_percent = False #Checking for point in percent
     Percent = percent#From the user entered percent to the main progrem
     late_time = time#From the user entered how many days shoul be waited before the fees started
     if Percent == '' or late_time == '':
-        label_Error.config(text='Поля ввода не заполнены')
+        entry_Percent.config(bg = 'red', fg = 'white')
+        entry_Time.config(bg = 'red', fg = 'white')
+        label_Time.place_forget()
+        label_Percent.place_forget()
+        label_Error.config(text='   Поля ввода не    \nзаполнены!', bg = 'grey', fg = 'white')
+        label_Error.place(x = 30, y = 170)
         start = False
     for i in range(0, len(Percent)):
         if Percent[i].isdigit() == False and start:
             if Percent[i] != '.' or i == 0 or point_in_percent:
                 start = False
-                label_Error.config(text = f'{Percent} это не число с разделительной точкой')
+                label_Error.config(text = f'{Percent} это не число с    \nразделительной точкой', bg = 'grey', fg = 'white')
+                label_Error.place(x = 30, y = 130)
+                label_Percent.place_forget()
+                entry_Percent.config(bg = 'red', fg = 'white')
             if Percent[i] == '.':
                 point_in_percent = True
 
@@ -104,9 +112,16 @@ def start(percent, time): #The main function from which all other functions are 
         for i in range(0, len(late_time)):
             if late_time[i].isdigit() == False:
                 start = False
-                label_Error.config(text = f'{late_time} это не целое число')
+                label_Error.config(text = f'{late_time} это не целое число ', bg = 'grey', fg = 'white')
+                label_Error.place(x = 30, y = 200)
+                label_Time.place_forget()
+                entry_Time.config(bg = 'red', fg = 'white')
                 break
     if start:
+        bnt_question_1.place_forget()
+        bnt_question_2.place_forget()
+        bnt_question_3.place_forget()
+        bnt_question_4.place_forget()
         main(float(Percent) / 100, int(late_time), file_name)#The beggining ot the program
     return(0)
 
@@ -201,13 +216,8 @@ def main(percent, late_time, file_name):
             if circle_body and f[i][1] != f[i + 1][1]:
                 begin = f[i + 1][0]
         return output_list
-    '''
-    def days_between(d1, d2):
-        d1 = datetime.strptime(d1, "%Y-%m-%d")
-        d2 = datetime.strptime(d2, "%Y-%m-%d")
-        return abs((d2 - d1).days)
 
-    '''
+
     def qurent_date(data):#This function is need for calculation it transfer the dates to a numbers, which are used for calculation
         first_year_date = int(data[0][0][6] + data[0][0][7])
         for i in range(0, len(data)):
@@ -381,9 +391,6 @@ def main(percent, late_time, file_name):
     start_date = data[0][0]#This is the first date for calculation
     last_date = data[len(data) - 1][0]
     fee_to_pay = 0
-    #fee_to_pay_previous = fee_to_pay #For output
-    #current_outcomes_date = outcomes_updated[0][0]
-    #current_incomes_date = incomes_updated[0][0]
     current_incomes_number = 0 #The number of incomes with which we are workig
     current_outcomes_number = 0
     not_used_outcomes = 0#This variable is needed to remember all money which was not paied 
@@ -391,6 +398,9 @@ def main(percent, late_time, file_name):
 
     fee_fedbak_final = []
     fee_fedbak = 0
+
+
+
     i = start_date
     while i <= last_date:
         check_to_enter = True
@@ -430,14 +440,12 @@ def main(percent, late_time, file_name):
             fee_to_pay += (percent) * (incomes_updated[current_incomes_number][5])
             fee_fedbak = (percent) * (incomes_updated[current_incomes_number][5])
             j = 1
-            #print(fee_to_pay)
             if incomes_updated[current_incomes_number][0] != last_date and current_incomes_number + j <= (len(incomes_updated) - current_incomes_number):
                 while i - incomes_updated[current_incomes_number + j][0] > late_time:
                     fee_to_pay += (percent) * (incomes_updated[current_incomes_number + j][5])
                     current_sum_to_pay += incomes_updated[current_incomes_number + j][5]
                     fee_fedbak += (percent) * (incomes_updated[current_incomes_number + j][5])
                     j += 1
-                    #print(fee_to_pay)
                     if incomes_updated[current_incomes_number][0] == last_date or j == (len(incomes_updated) - current_incomes_number):
                         break
         
@@ -470,6 +478,18 @@ def center_window(root, width=300, height=200):
 
 def clean():
     entry_Percent.delete(0, len(entry_Percent.get()))
+    label_Error.config(text = '', bg = 'lightgrey', fg = 'lightgrey')
+    label_Error.place_forget()
+    lable_place_output.config(bg = 'grey', fg = 'white')
+    bnt_question_1.place(x=650, y=132)
+    bnt_question_2.place(x=650, y=202)
+    bnt_question_3.place(x=650, y=270)
+    bnt_question_4.place(x=650, y=335)
+    button_Output_File.place(x=400, y=335)
+    entry_Percent.config(bg = 'white', fg = 'black')
+    entry_Time.config(bg = 'white', fg = 'black')
+    label_Percent.place(x = 30, y = 130)
+    label_Time.place(x = 30, y = 200)
     entry_Time.delete(0, len(entry_Time.get()))
 
 
@@ -515,51 +535,50 @@ display_photo = original_photo.subsample(9, 9)
 canvas.create_image(330, 10, anchor=NW, image=display_photo)
 
 # Lables of the window application
-lable_choose_file = Label(root, text='Выберите файл:', bg='grey', fg='white', font='Courier 20')
+lable_choose_file = Label(root, text='Выберите файл:      ', bg='grey', fg='white', font='Courier 20')#20 symbols in a line
 lable_choose_file.place(x=30, y=70)
-label_Percent = Label(root, text = 'Введите штрафной процент: ', bg='grey', fg='white', font='Courier 20')
+label_Percent = Label(root, text = 'Введите размер пени:\n ', bg='grey', fg='white', font='Courier 20')
 label_Percent.place(x=30, y=130)
-label_Time = Label(root, text='Введите количество \n'
+label_Time = Label(root, text='Введите количество  \n'
                                 'дней на оплату: ', bg='grey', fg='white', font='Courier 20')
-label_Time.place(x=30, y=190)
-lable_place_output = Label(root, text='Выберите место \n'
-                                      'для сохранения файла:', bg='grey', fg='white', font='Courier 20')
+label_Time.place(x=30, y=200)
+lable_place_output = Label(root, text='Выберите место для  \nсохранения файла:', bg='grey', fg='white', font='Courier 20')
 lable_place_output.place(x=30, y=320)
 
-label_Error = Label(root, text='', bg='lightgrey', fg='lightgrey')
-label_Error.place(x=230, y=250)
-label_File = Label(root, text='', bg='lightgrey', fg='lightgrey')
-label_File.place(x=50, y=100)
+label_Error = Label(root, text='', bg='lightgrey', fg='lightgrey', font='Courier 20')
+label_Error.place()
+#label_File = Label(root, text='', bg='lightgrey', fg='lightgrey')
+#label_File.place(x=50, y=100)
 
 
 # Text boxes of the window application
-entry_Percent = Entry(root)
-entry_Percent.place(x=400, y=132)
-entry_Time = Entry(root)
-entry_Time.place(x=400, y=200)
+entry_Percent = Entry(root, width = 11, font=('Ubuntu', 30))
+entry_Percent.place(x=400, y=140)
+entry_Time = Entry(root, width = 11, font = ('Ubuntu', 30))
+entry_Time.place(x=400, y=210)
 
 
 # Buttons of the window application
-button_Main = Button(root, text='Пуск!', bg='grey', fg='black', font='Courier 20')
+button_Main = Button(root, text='Рассчитать', bg='white', fg='black', font='15')
 button_Main.bind('<Button-1>', lambda event: start(entry_Percent.get(), entry_Time.get()))
-button_Main.place(x=325, y=420)
+button_Main.place(x=270, y=420)
 
 
-button_File = Button(root, text='Выбор файла: ', command=insert_file)
-button_Main.bind('<Button-2>')
+button_File = Button(root, text='Выбор файла: ', font = 'Times 11', command=insert_file)
+button_File.bind('<Button-2>')
 button_File.place(x=400, y=75)
 
-button_Output_File = Button(root, text='Выберите файл:', command=output_file_fun)
+button_Output_File = Button(root, text='Выберите файл:', font = 'Times 11', command=output_file_fun)
 button_Output_File.bind('<Button-3>')
 button_Output_File.place(x=400, y=335)
 
-btn_clean = Button(root, text='Очистить', bg='grey', fg='black', font='Courier 20', command=clean)
+btn_clean = Button(root, text='Отменить', bg='white', fg='black', font='15', command=clean)
 btn_clean.bind('<Button-4>')
-btn_clean.place(x=580, y=420)
+btn_clean.place(x=530, y=420)
 
 
 bnt_calendar_days = Button(text='Календарные дни', command=button_colour_change_gc)
-bnt_calendar_days.place(x=400, y=270)
+bnt_calendar_days.place(x=400, y=280)
 # bnt_calendar_days.bind('<Button-5>', button_colour_change) # bind event: Press this button
 # bnt_calendar_days.bind('<Return>', button_colour_change)   # bind event: press Enter (when focus)
 #bnt_calendar_days.pack() # pack() нельзя вызывать, если выполняется позиционирование place(x, y)
@@ -567,7 +586,7 @@ bnt_calendar_days.place(x=400, y=270)
 bnt_working_days = Button(root, text='Рабочие дни', bg='grey', fg='black', command=button_colour_change_gw)
 #bnt_working_days.bind('<Button-6>', button_colour_change)
 #bnt_working_days.bind('<Return>', button_colour_change)
-bnt_working_days.place(x=200, y=270)
+bnt_working_days.place(x=200, y=280)
 
 #Image for Button(?)
 or_bnt_photo = PhotoImage(file='question.png')
@@ -576,23 +595,23 @@ re_bnt_photo = or_bnt_photo.subsample(20, 20)
 # Button(?)
 bnt_question_1 = Button(root)
 bnt_question_1.config(image=re_bnt_photo, height=25, width=25)
-bnt_question_1.place(x=650, y=132)
+bnt_question_1.place(x=660, y=152)
 h1 = HoverInfo(bnt_question_1, text='Введите целое число/\nчисло с разделительной точкой')
 
 
 bnt_question_2 = Button(root)
 bnt_question_2.config(image=re_bnt_photo, height=25, width=25)
-bnt_question_2.place(x=650, y=202)
+bnt_question_2.place(x=660, y=222)
 h2 = HoverInfo(bnt_question_2, text='Введите целое число')
 
 bnt_question_3 = Button(root)
 bnt_question_3.config(image=re_bnt_photo, height=25, width=25)
-bnt_question_3.place(x=650, y=270)
+bnt_question_3.place(x=660, y=290)
 h3 = HoverInfo(bnt_question_3, text='Выберите по каким дням\nбудет считаться отстрочка')
 
 bnt_question_4 = Button(root)
 bnt_question_4.config(image=re_bnt_photo, height=25, width=25)
-bnt_question_4.place(x=650, y=335)
+bnt_question_4.place(x=660, y=355)
 h4 = HoverInfo(bnt_question_4, text='Выберите файл\nдля вывода данных')
 
 root.mainloop()
