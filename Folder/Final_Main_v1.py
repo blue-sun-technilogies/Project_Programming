@@ -228,7 +228,7 @@ def main(percent, late_time, file_name):
         for i in range(len(f)):
             circle_body = i + 1 <= len(f) - 1
             if circle_body and f[i][1] != f[i + 1][1] or not circle_body:
-                output_list.append((f'За {f[i][0] - begin + 1} ' +
+                output_list.append((f'Количество дней - {f[i][0] - begin + 1} ' +
                 (f'дней с {dayToStr(begin, firstYear)} по {dayToStr(f[i][0], firstYear)} '
                  if f[i][0] - begin > 0 else f'день {dayToStr(begin, firstYear)} числа ') +
                                     f'задолженность составила {(f[i][0] - begin + 1) * f[i][1]}' +
