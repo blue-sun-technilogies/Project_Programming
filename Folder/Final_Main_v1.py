@@ -232,7 +232,7 @@ def main(percent, late_time, file_name):
                 (f'дней с {dayToStr(begin, firstYear)} по {dayToStr(f[i][0], firstYear)} '
                  if f[i][0] - begin > 0 else f'день {dayToStr(begin, firstYear)} числа ') +
                                     f'задолженность составила {(f[i][0] - begin + 1) * f[i][1]}' +
-                                    f' штраф {(f[i][0] - begin + 1) * f[i][2]}, пени = {percent}%'))
+                                    f' штраф {(f[i][0] - begin + 1) * f[i][2]}, пени = {percent}%, формула растчета: сумма штрафа = {(f[i][0] - begin + 1) * f[i][1]}/100*{percent}\n'))
             if circle_body and f[i][1] != f[i + 1][1]:
                 begin = f[i + 1][0]
         return output_list
