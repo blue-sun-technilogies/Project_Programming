@@ -1,20 +1,3 @@
-'''
-Shirmankina Ekaterina - Final_Main_v5 - 29/05/2019 - 23:40 - готовая отлаженая версия (1.csv, data2.csv).
-Versions:
-1) Загружен с Github в 16:45 - Денис
-2) Интегрирована с функцией из "Final_Main_v5_201905271239":
-Определение количества дней в массиве data: добавлено
-- days_in_months[]
-- is_intercalary_year()
-Заменен код (интерфейс не менялся):
-- querent_date(data) на dataDatesConvertToInt(data)
-Тест "2,2" дает вывод идентичный предыдущей версии.
-3) Надпись на кнопке выходного файла - сделано.
-4) Переименовать функции конвертации в dayToStr, dayToInt.
-5) Добавление обработки формата d.m.yy, dd.m.yy в dayToInt().
-6) реинжениринг back_date(date, firstYear) -> dayToStr(date, firstYear)
-This function convert date (int) and firstYear (int - это номер года, 18 для 2018) to str: [d]d.mm.yy.
-'''
 from tkinter import *
 from tkinter import filedialog as fd
 import os
@@ -78,25 +61,11 @@ def insert_file():  # This fuction need to find the name of the file
     file_name = fd.askopenfilename()
     button_File.config(text=file_name)
 
-"""
-url = 'https://isdayoff.ru/api/getdata?year=' #Исплользуем API для выходных дней
-def calendar(calendar_year):
-    calend = []
-    calendar_year = str(calendar_year)
-    path = url + calendar_year
-    r = requests.get(path)
-    data = r.content
-    for elements in data:
-        if elements == 49:
-            calend.append(1)
-        elif elements == 48:
-            calend.append(0)
-        else:
-            calend.append(2)
-    return calend
-calend = calendar(2019)
-print(calend)
-"""
+
+
+#calend = calendar(2019)
+#print(calend)
+
 
 
 def calendar_days():
@@ -188,6 +157,23 @@ def main(percent, late_time, file_name):
                 data[i][3] = data[i][9]
                 data[i][5] = data[i][11]
         return (data)
+    
+
+    url = 'https://isdayoff.ru/api/getdata?year=' #Исплользуем API для выходных дней
+    def calendar(calendar_year):
+        calend = []
+        calendar_year = str(calendar_year)
+        path = url + calendar_year
+        r = requests.get(path)
+        data = r.content
+        for elements in data:
+            if elements == 49:
+                calend.append(1)
+            elif elements == 48:
+                calend.append(0)
+            else:
+                calend.append(2)
+        return calend
 
     def read_info(file_name):  # Add check of all lines
         data = []
@@ -221,9 +207,9 @@ def main(percent, late_time, file_name):
         file_name.close()  #######
         return data
 
-    def days_work(data):
-        return (0)
 
+    global Working_Days
+    Working_Days = True 
     def update_outcomes(outcomes):  # Special for calculation, this function united information from one day
         outcomes_updated = []
         i = 0
@@ -363,6 +349,7 @@ def main(percent, late_time, file_name):
     u_d = dataDatesConvertToInt(data) # Special variable not to call the function two times
     data = u_d[0] # Return tuple, NEW data[][][] with dates converted to int, AND firstYear, 18 for 2018.
     firstYear = u_d[1]
+    calend = calendar(firstYear)
 
     incomes = []
     outcomes = []
@@ -423,7 +410,34 @@ def main(percent, late_time, file_name):
                 i -= 1
                 check_to_enter = False
 
-        if i - incomes_updated[current_incomes_number][0] > late_time and check_to_enter:  # Start checkingfor fees
+        if Working_Days:
+            if i - incomes_updated[current_incomes_number][0] > late_time and check_to_enter:
+                quantity_working = 0
+                for k in range(incomes_updated[current_incomes_number][0] - 1, i):
+                    if calend[k] == 0:
+                        quantity_working += 1
+                if quantity_working > late_time:
+                    fee_fedbak = 0
+                    current_sum_to_pay = incomes_updated[current_incomes_number][5]
+                    if calend[current_incomes_number - 1] == 0:
+                        fee_to_pay += (percent) * (incomes_updated[current_incomes_number][5])
+                        fee_fedbak = (percent) * (incomes_updated[current_incomes_number][5])
+                        j = 1
+                        if incomes_updated[current_incomes_number][0] != last_date and current_incomes_number + j <= (
+                            len(incomes_updated) - current_incomes_number):
+                            while i - incomes_updated[current_incomes_number + j][0] > late_time:
+                                if calend[current_incomes_number - 1] == 0:
+                                    fee_to_pay += (percent) * (incomes_updated[current_incomes_number + j][5])
+                                    current_sum_to_pay += incomes_updated[current_incomes_number + j][5]
+                                    fee_fedbak += (percent) * (incomes_updated[current_incomes_number + j][5])
+                                    j += 1
+                                if incomes_updated[current_incomes_number][0] == last_date or j == (
+                                        len(incomes_updated) - current_incomes_number):
+                                    break
+
+
+
+        elif i - incomes_updated[current_incomes_number][0] > late_time and check_to_enter:  # Start checkingfor fees
             fee_fedbak = 0
             current_sum_to_pay = incomes_updated[current_incomes_number][5]  # Used for output in final
             fee_to_pay += (percent) * (incomes_updated[current_incomes_number][5])
@@ -493,6 +507,7 @@ def button_colour_change_gc(event=None):
     # bnt_calendar_days['selectbackground'] = "red"
     bnt_working_days['fg'] = "red"
     bnt_working_days['activeforeground'] = "red"
+    Working_Days = True
 
 
 def button_colour_change_gw(event=None):
@@ -500,6 +515,7 @@ def button_colour_change_gw(event=None):
     bnt_working_days['activeforeground'] = "green"
     bnt_calendar_days['fg'] = "red"
     bnt_calendar_days['activeforeground'] = "red"
+    Working_Days = False
 
 
 root = Tk()
