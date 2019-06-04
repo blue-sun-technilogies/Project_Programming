@@ -611,13 +611,13 @@ btn_clean.place(x=530, y=420)
 
 bnt_calendar_days = Button(text='Календарные дни', command=button_colour_change_gc)
 bnt_calendar_days.place(x=400, y=280)
-bnt_calendar_days.config(command = working_days(0))
+
 # bnt_calendar_days.bind('<Button-5>', button_colour_change) # bind event: Press this button
 # bnt_calendar_days.bind('<Return>', button_colour_change)   # bind event: press Enter (when focus)
 # bnt_calendar_days.pack() # pack() нельзя вызывать, если выполняется позиционирование place(x, y)
 
 bnt_working_days = Button(root, text='Рабочие дни', bg='grey', fg='black', command=button_colour_change_gw)
-bnt_working_days.config(command = working_days(1))
+
 # bnt_working_days.bind('<Button-6>', button_colour_change)
 # bnt_working_days.bind('<Return>', button_colour_change)
 bnt_working_days.place(x=200, y=280)
