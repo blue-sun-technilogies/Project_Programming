@@ -82,6 +82,10 @@ def output_file_fun():  # This function is need to find the name of output file
     return 0
 
 
+global Working_Days
+Working_Days = False
+
+
 def start(percent, time):  # The main function from which all other functions are started
     label_Error.config(text='')  # The label for errors to the user
     label_Percent.place(x=30, y=130)
@@ -167,7 +171,7 @@ def main(percent, late_time, file_name):
                 data[i][3] = data[i][9]
                 data[i][5] = data[i][11]
         return (data)
-    
+
 
     url = 'https://isdayoff.ru/api/getdata?year=' #Исплользуем API для выходных дней
     def calendar(calendar_year):
@@ -218,8 +222,6 @@ def main(percent, late_time, file_name):
         return data
 
 
-    global Working_Days
-    Working_Days = True 
     def update_outcomes(outcomes):  # Special for calculation, this function united information from one day
         outcomes_updated = []
         i = 0
@@ -523,7 +525,8 @@ def button_colour_change_gc(event=None):
     # bnt_calendar_days['selectbackground'] = "red"
     bnt_working_days['fg'] = "red"
     bnt_working_days['activeforeground'] = "red"
-    Working_Days = True
+    global Working_Days
+    Working_Days = False
 
 
 def button_colour_change_gw(event=None):
@@ -531,7 +534,9 @@ def button_colour_change_gw(event=None):
     bnt_working_days['activeforeground'] = "green"
     bnt_calendar_days['fg'] = "red"
     bnt_calendar_days['activeforeground'] = "red"
-    Working_Days = False
+    global Working_Days
+    Working_Days = True
+
 
 
 root = Tk()
@@ -606,11 +611,13 @@ btn_clean.place(x=530, y=420)
 
 bnt_calendar_days = Button(text='Календарные дни', command=button_colour_change_gc)
 bnt_calendar_days.place(x=400, y=280)
+bnt_calendar_days.config(command = working_days(0))
 # bnt_calendar_days.bind('<Button-5>', button_colour_change) # bind event: Press this button
 # bnt_calendar_days.bind('<Return>', button_colour_change)   # bind event: press Enter (when focus)
 # bnt_calendar_days.pack() # pack() нельзя вызывать, если выполняется позиционирование place(x, y)
 
 bnt_working_days = Button(root, text='Рабочие дни', bg='grey', fg='black', command=button_colour_change_gw)
+bnt_working_days.config(command = working_days(1))
 # bnt_working_days.bind('<Button-6>', button_colour_change)
 # bnt_working_days.bind('<Return>', button_colour_change)
 bnt_working_days.place(x=200, y=280)
