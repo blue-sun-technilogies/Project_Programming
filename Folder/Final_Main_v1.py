@@ -115,7 +115,7 @@ def start(percent, time):  # The main function from which all other functions ar
             if Percent[i] == '.':
                 point_in_percent = True
 
-    
+    """
     def code_checking(file_name):
         detector = UniversalDetector()
         with open(file_name, 'rb') as fh:
@@ -127,7 +127,9 @@ def start(percent, time):  # The main function from which all other functions ar
         det = detector.result
         det1 = det.get('encoding')
         return det1
-
+    det = code_checking('Data2.csv')
+    #if det == 'UTF-8-SIG':
+    """
     if start:
         for i in range(0, len(late_time)):
             if late_time[i].isdigit() == False:
@@ -142,6 +144,16 @@ def start(percent, time):  # The main function from which all other functions ar
         bnt_question_2.place_forget()
         bnt_question_3.place_forget()
         bnt_question_4.place_forget()
+        bnt_working_days.place_forget()
+        bnt_calendar_days.place_forget()
+        label_Percent.place_forget()
+        label_Time.place_forget()
+        entry_Percent.place_forget()
+        entry_Time.place_forget()
+        button_File.place_forget()
+        button_Output_File.place_forget()
+        lable_choose_file.place_forget()
+        lable_place_output.place_forget()
         main(float(Percent) / 100, int(late_time), file_name)  # The beggining ot the program
     return (0)
 
@@ -158,8 +170,7 @@ def main(percent, late_time, file_name):
     
 
     url = 'https://isdayoff.ru/api/getdata?year=' #Исплользуем API для выходных дней
-    def calendar(firstYear):
-        calendar_year = firstYear + 2000
+    def calendar(calendar_year):
         calend = []
         calendar_year = str(calendar_year)
         path = url + calendar_year
@@ -316,6 +327,8 @@ def main(percent, late_time, file_name):
             lst=data[i][0].split(',')[0].split('.') # Отделим по ',' дату, затем разделим дату по '.' на список строк. 
             data[i][0] = dayToInt( int(lst[0]), int(lst[1]), int(lst[2]), firstYear)
         return (data, firstYear) # Tuple - (Total number of days, include current_day; год как int, 18 для 2018).
+
+    
     ''' Converts date (int) and firstYear (int) to return str: dd.mm.yy.
     Первым днем (1) считается 1 января указанного года firstYear (18 из 2018).
     '''
@@ -485,9 +498,9 @@ def clean():
     label_Error.config(text='', bg='lightgrey', fg='lightgrey')
     label_Error.place_forget()
     lable_place_output.config(bg='grey', fg='white')
-    bnt_question_1.place(x=650, y=132)
-    bnt_question_2.place(x=650, y=202)
-    bnt_question_3.place(x=650, y=270)
+    bnt_question_1.place(x=650, y=150)
+    bnt_question_2.place(x=650, y=215)
+    bnt_question_3.place(x=650, y=275)
     bnt_question_4.place(x=650, y=335)
     button_Output_File.place(x=400, y=335)
     entry_Percent.config(bg='white', fg='black')
@@ -495,6 +508,12 @@ def clean():
     label_Percent.place(x=30, y=130)
     label_Time.place(x=30, y=200)
     entry_Time.delete(0, len(entry_Time.get()))
+    lable_choose_file.place(x=30, y=70)
+    entry_Percent.place(x=400, y=140)
+    entry_Time.place(x=400, y=210)
+    button_File.place(x=400, y=75)
+    button_Output_File.place(x=400, y=335)
+    lable_place_output.place(x=30, y=320)
 
 
 def button_colour_change_gc(event=None):
@@ -603,22 +622,22 @@ re_bnt_photo = or_bnt_photo.subsample(20, 20)
 # Button(?)
 bnt_question_1 = Button(root)
 bnt_question_1.config(image=re_bnt_photo, height=25, width=25)
-bnt_question_1.place(x=660, y=152)
+bnt_question_1.place(x=660, y=150)
 h1 = HoverInfo(bnt_question_1, text='Введите целое число/\nчисло с разделительной точкой')
 
 bnt_question_2 = Button(root)
 bnt_question_2.config(image=re_bnt_photo, height=25, width=25)
-bnt_question_2.place(x=660, y=222)
+bnt_question_2.place(x=660, y=215)
 h2 = HoverInfo(bnt_question_2, text='Введите целое число')
 
 bnt_question_3 = Button(root)
 bnt_question_3.config(image=re_bnt_photo, height=25, width=25)
-bnt_question_3.place(x=660, y=290)
+bnt_question_3.place(x=660, y=275)
 h3 = HoverInfo(bnt_question_3, text='Выберите по каким дням\nбудет считаться отстрочка')
 
 bnt_question_4 = Button(root)
 bnt_question_4.config(image=re_bnt_photo, height=25, width=25)
-bnt_question_4.place(x=660, y=355)
+bnt_question_4.place(x=660, y=335)
 h4 = HoverInfo(bnt_question_4, text='Выберите файл\nдля вывода данных')
 
 root.mainloop()
