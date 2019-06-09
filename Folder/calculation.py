@@ -72,8 +72,9 @@ def read_info(file_name):  # Add check of all lines
 # Функция вывода данных (IO, try - except).
 def write_info(report, output_file_name):
     fo=open(output_file_name, 'w', encoding='utf-16') # Information is outputed to the doc format
-    for elem in report:
+    for elem in report[0]:
         fo.write(elem + '\n')
+        fo.write(f'Общая сумма штрафа составила {report[1]} рублей')
     fo.close()
 
 
@@ -119,6 +120,7 @@ def incomes_update(incomes):  # This function is needed for calculation, again u
 
 def makeReport(f, percent, firstYear):
     output_list = []
+    final_to_pay = 0
     begin = f[0][0]
     for i in range(len(f)):
         circle_body = i + 1 <= len(f) - 1
@@ -128,9 +130,10 @@ def makeReport(f, percent, firstYear):
                                  if f[i][0] - begin > 0 else f'день {dayToStr(begin, firstYear)} числа ') +
                                 f'задолженность составила {(f[i][0] - begin + 1) * f[i][1]}' +
                     f' штраф {(f[i][0] - begin + 1) * f[i][2]}, пени = {percent}%, формула расчета: сумма штрафа = {(f[i][0] - begin + 1) *f[i][1]}/100*{percent}\n'))
+            final_to_pay += (f[i][0] - begin + 1) * f[i][2]         
         if circle_body and f[i][1] != f[i + 1][1]:
             begin = f[i + 1][0]
-    return output_list
+    return [output_list, final_to_pay]
 
 
 days_in_months = [
