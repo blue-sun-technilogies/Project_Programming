@@ -1,28 +1,23 @@
 '''
-main.py
-главный файл проекта, управление виджетами tk, запуск расчета.
-
-Shirmankina Ekaterina - Final_Main_v8 - 5/6/2019 - 20:08
+Shirmankina Ekaterina - Final_Main_v9 - 9/6/2019 - 18:38 - without PEP8
 Versions:
-v8.11 - 5/6/2019 - 19:30 : отлажено разбиение на 2 модуля, устранены перекрестные ссылки.
+v9.11 - 9/6/2019
 Fixed:
-+ bug: после расчета и кнопки Отменить исчезают кнопки Рабочие, Календарные
-+ bug: после кнопки Отменить (без расчета) прыгают кнопки '?'
-+ todo: Кнопка выхода
-
-
-- todo: прописать в placeWidget() все позиционирование и сброс для clean()
-- todo  Protect against incorrect user input. Прописать решения для всех возможных ошибок пользователя. смотреть функцию - start = Андрей 
-- todo All IO or network operations should be written in try-except blocks
-- todo после нажатия кнопки  "Рассчитать", а затем кнопки "Отмена" происходит глюк программы - почему?
-- todo На Mac при нажатии кнопки "Рассчитать"поле "Поля ввода не заполнены" наезажает на лэйблы, в Wind - все хорошо
-- todo первый прогон программы -- "Рассчитать" -- Выводят ошибку-- вводят в поля цифры и программа крашится
-- todo - ? Bug or feature? при нажатии clean имя файла не очищается. Сделать, чтобы оба файла очищались.
++ bug: write a reset to the data entered in the text boxes for def clean ().
++ bug: Protect against incorrect user input.
++ bug: All IO or network operations should be written in try-except blocks.
++ bug: Check file encoding.
++ bug: When you click the clean function, the file paths are not cleared.
++ bug: The appearance of the messagebox that the encoding is incorrect and that the calculation is done.
++ bug: Troubleshooting GUI errors (in general)
++ bug: Troubleshooting GUI for Mac and Windows
++ bug: The size of final.png was changed to 60 pixels.
 '''
 
 from tkinter import *
 from tkinter import filedialog as fd
-# import os
+from tkinter import messagebox
+import os.path
 from platform import system
 import re
 from tkinter.filedialog import askopenfilename
@@ -31,17 +26,14 @@ from chardet.universaldetector import UniversalDetector
 # Our project files:
 from calculation import mainCalc
 
-Working_Days = False
-output_file_name = 'out.doc'  # This variable is the name of the output file
-file_name = '1.csv'  # This variable is the name of the inputed file
+
+ENTRY_BG_CLEAN = '#FFFFFF'
+ENTRY_BG_ERROR = 'orange'
+FRM_BG = '#d9d9d9'
+LBL_BG_CLEAN = FRM_BG
+LBL_BG_ERROR = 'orange'
 
 class HoverInfo(Menu):
-    '''
-    text-подсказка для пользователя. строчки разделены символом  '\n'.
-    Пример использования:
-    h = HoverInfo(bnt_question_1, text='Введите \n целое \n число')
-    '''
-
     def __init__(self, parent, text, command=None):
         self._com = command
         Menu.__init__(self, parent, tearoff=0)
@@ -54,12 +46,6 @@ class HoverInfo(Menu):
             self._displayed = False
             self.master.bind("<Enter>", self.Display)
             self.master.bind("<Leave>", self.Remove)
-
-    '''
-    def __del__(self):
-       self.master.unbind("<Enter>")
-       self.master.unbind("<Leave>")
-    '''
 
     def Display(self, event):
         if not self._displayed:
@@ -81,262 +67,225 @@ class HoverInfo(Menu):
 
 
 def insert_file():  # This fuction need to find the name of the file
-    global file_name  # This variable is the name of the inputed file
-    file_name = fd.askopenfilename()
-    button_File.config(text=file_name)
+	global file_name  # This variable is the name of the inputed file
+	file_name = fd.askopenfilename()
+	if file_name:
+		detector = UniversalDetector()
+		with open(file_name, 'rb') as fh:
+			for line in fh:
+				detector.feed(line)
+				if detector.done:
+					break
+			detector.close()
+		# ~ print(detector.result)
+		if detector.result['encoding'] != 'UTF-8-SIG':
+			file_name = ''
+			btn_file['text'] = 'Выберите файл..'
+			messagebox.showerror('Неверная кодировка файла','Неверная кодировка файла. Требуется UTF-8-SIG, обнаружена '+ detector.result['encoding'])
+		else:
+			lbl_file['bg'] = LBL_BG_CLEAN
+			btn_file['text'] = file_name
 
-
-def calendar_days():
-    global calendar_d
-    calendar_d = True
-    bnt_calendar_days.config()
-    return (0)
 
 
 # Метод кнопки выбора выходного файла.
 def output_file_fun():  # This function is need to find the name of output file
-    global output_file_name  # This variable is the name of the output file
-    output_file_name = fd.asksaveasfilename() + '.doc'  # WHY .doc for .txt файл?
-    button_Output_File.config(text=output_file_name)
-    return 0
-
-def start(percent, time):  # The main function from which all other functions are started
-    label_Error.config(text='')  # The label for errors to the user
-    label_Percent.place(x=30, y=130)
-    label_Error.place_forget()
-    label_Time.place(x=30, y=200)
-    entry_Percent.config(bg='white', fg='black')
-    entry_Time.config(bg='white', fg='black')
-    # label_Error.place(x = 30, y = 320)
-    # bnt_question_4.place_forget()
-    # button_Output_File.place_forget()
-    start = True  # The variable to check if the progrma can start or not
-    point_in_percent = False  # Checking for point in percent
-    Percent = percent  # From the user entered percent to the main progrem
-    late_time = time  # From the user entered how many days shoul be waited before the fees started
-    if Percent == '' or late_time == '':
-        entry_Percent.config(bg='red', fg='white')
-        entry_Time.config(bg='red', fg='white')
-        label_Time.place_forget()
-        label_Percent.place_forget()
-        label_Error.config(text='   Поля ввода не    \nзаполнены!', bg='grey', fg='white')
-        label_Error.place(x=30, y=170)
-        start = False
-    for i in range(0, len(Percent)):
-        if Percent[i].isdigit() == False and start:
-            if Percent[i] != '.' or i == 0 or point_in_percent:
-                start = False
-                label_Error.config(text=f'{Percent} это не число с    \nразделительной точкой', bg='grey', fg='white')
-                label_Error.place(x=30, y=130)
-                label_Percent.place_forget()
-                entry_Percent.config(bg='red', fg='white')
-            if Percent[i] == '.':
-                point_in_percent = True
-
-    """
-    def code_checking(file_name):
-        detector = UniversalDetector()
-        with open(file_name, 'rb') as fh:
-            for line in fh:
-                detector.feed(line)
-                if detector.done:
-                    break
-            detector.close()
-        det = detector.result
-        det1 = det.get('encoding')
-        return det1
-    det = code_checking('Data2.csv')
-    #if det == 'UTF-8-SIG':
-    """
-    if start:
-        for i in range(0, len(late_time)):
-            if late_time[i].isdigit() == False:
-                start = False
-                label_Error.config(text=f'{late_time} это не целое число ', bg='grey', fg='white')
-                label_Error.place(x=30, y=200)
-                label_Time.place_forget()
-                entry_Time.config(bg='red', fg='white')
-                break
-    if start:
-        bnt_question_1.place_forget()
-        bnt_question_2.place_forget()
-        bnt_question_3.place_forget()
-        bnt_question_4.place_forget()
-        bnt_working_days.place_forget()
-        bnt_calendar_days.place_forget()
-        label_Percent.place_forget()
-        label_Time.place_forget()
-        entry_Percent.place_forget()
-        entry_Time.place_forget()
-        button_File.place_forget()
-        button_Output_File.place_forget()
-        lable_choose_file.place_forget()
-        lable_place_output.place_forget()
-        mainCalc(float(Percent) / 100, int(late_time), Working_Days, file_name, output_file_name)  # Call main calculation program
-    return 0
-
-
-# Center the window with given width and height.
-def center_window(root, width=300, height=200):
-    # get screen width and height
-    screen_width = root.winfo_screenwidth()
-    screen_height = root.winfo_screenheight()
-
-    # calculate position x and y coordinates
-    x = (screen_width / 2) - (width / 2)
-    y = (screen_height / 2) - (height / 2)
-    root.geometry('%dx%d+%d+%d' % (width, height, x, y))
-
-
-def placeWidget():
-    entry_Percent.config(bg='white', fg='black')
-    entry_Time.config(bg='white', fg='black')
-    entry_Percent.place(x=400, y=140)
-    entry_Time.place(x=400, y=210)
-
-    bnt_calendar_days.place(x=400, y=280)
-    bnt_working_days.place(x=200, y=280)
-    button_Exit.place(x=30, y=420)
-    button_Main.place(x=280, y=420)
-    btn_clean.place(x=530, y=420)
+	global output_file_name  # This variable is the name of the output file
+	output_file_name = fd.asksaveasfilename() + '.doc'  # WHY .doc for .txt файл?
+	if output_file_name:
+		btn_outfile['text']=output_file_name
+		lbl_outfile['bg'] = LBL_BG_CLEAN
 
 
 def clean():
-    entry_Percent.delete(0, len(entry_Percent.get()))
-    entry_Percent.config(bg='white', fg='black')
+	global output_file_name, file_name,type_days_only_work
+	output_file_name = ''  # This variable is the name of the output file
+	file_name = ''  # This variable is the name of the inputed file
+	type_days_only_work = True
 
-    entry_Time.config(bg='white', fg='black')
-    entry_Time.delete(0, len(entry_Time.get()))
+	data_size.set('')
+	data_days.set('')
+	lbl_size['text'] = 'Размер (вещественное положительное значение)'
+	lbl_days['text'] = 'Количество дней (целое положительное значение)'
+	lbl_size['bg'] = LBL_BG_CLEAN
+	lbl_days['bg'] =LBL_BG_CLEAN
+	type_days_only_work = False
+	change_type_days()
+	ent_size['bg'] = ENTRY_BG_CLEAN
+	ent_days['bg'] = ENTRY_BG_CLEAN
+	btn_file['text'] = 'Выберите файл...'
+	btn_outfile['text'] = 'Выберите файл...'
+	lbl_outfile['bg'] = LBL_BG_CLEAN
+	lbl_file['bg'] = LBL_BG_CLEAN
 
-    label_Error.config(text='', bg='lightgrey', fg='lightgrey')
-    label_Error.place_forget()
+def change_type_days():
+	global type_days_only_work
+	type_days_only_work = not type_days_only_work
+	if type_days_only_work:
+		btn_type_days['text'] = 'Рабочие дни'
+	else:
+		btn_type_days['text'] = 'Календарные дни'
+	
 
-    lable_place_output.config(bg='grey', fg='white')
-    placeWidget()
+def check_and_calc():
+	# ~ print(root['bg'])
+	# ~ print(data_size.get())
+	# ~ print(data_days.get())
+	# ~ print('дни:',type_days_only_work)
+	data_size_str = data_size.get()
+	data_size_str = data_size_str.replace(',','.')
+	data_days_str = data_days.get()
+	check = True
+	
+	try:
+		cleaned_data_size = float(data_size_str)
+		lbl_size['text'] = 'Размер (данные корректны)'
+		ent_size['bg'] = ENTRY_BG_CLEAN
+	except:
+		check = False
+		lbl_size['text'] = 'Введите положительное вещественное значение'
+		ent_size['bg'] = ENTRY_BG_ERROR
+		
 
+	try:
+		cleaned_data_days = int(data_days_str)
+		lbl_days['text'] = 'Количества дней (данные корректны)'
+		ent_days['bg'] = ENTRY_BG_CLEAN
+	except:
+		check = False
+		lbl_days['text'] = 'Введите натуральное число'
+		ent_days['bg'] = ENTRY_BG_ERROR
 
-def button_colour_change_gc(event=None):
-    # print('button_colour_change')
-    bnt_calendar_days['fg'] = "green"
-    bnt_calendar_days['activeforeground'] = "green"
-    # bnt_calendar_days['selectbackground'] = "red"
-    bnt_working_days['fg'] = "red"
-    bnt_working_days['activeforeground'] = "red"
-    global Working_Days
-    Working_Days = False
+	
+	if not os.path.exists(file_name):
+		check = False
+		lbl_file['bg'] = LBL_BG_ERROR
+	else:
+		lbl_file['bg'] = LBL_BG_CLEAN
 
+	if not output_file_name:
+		check = False
+		lbl_outfile['bg'] = LBL_BG_ERROR
+	else:
+		lbl_outfile['bg'] = LBL_BG_CLEAN
+		
 
-def button_colour_change_gw(event=None):
-    bnt_working_days['fg'] = "green"
-    bnt_working_days['activeforeground'] = "green"
-    bnt_calendar_days['fg'] = "red"
-    bnt_calendar_days['activeforeground'] = "red"
-    global Working_Days
-    Working_Days = True
-
+	if check:
+		print('данные верны, запускаю расчет')
+		mainCalc(cleaned_data_size / 100, cleaned_data_days, type_days_only_work, file_name, output_file_name)  # Call main calculation program
+		messagebox.showinfo('','Расчет выполнен')
+	else:
+		print('данные некорректны')
+	
+		
+	
+	
 
 root = Tk()
-
+#root.geometry('800x600')
 root.title('Калькулятор задолжности')  # name of the window application.
 # root.iconbitmap(r'final.png') # НЕ ОТОБРАЖАЕТСЯ
 root.resizable(False, False)
+root['bg'] = FRM_BG
 
-center_window(root, 700, 500)  # window size.
+data_size = StringVar()
+data_days = StringVar()
 
-canvas = Canvas(root, width=700, height=500, bg='lightgrey')
-canvas.pack()
 
-# Icons for different platforms
-platformD = system()
-if platformD == 'Darwin':
-    img = Image("photo", file="icon.gif")  # GIF
-    root.call('wm', 'iconphoto', root._w, img)
-elif platformD == 'Windows':
-    logo_image = 'icon.ico'
-    root.iconbitmap(logo_image)
-else:
-    logo_image = '@icon.xbm'
-    root.iconbitmap(logo_image)
-
-# Image for window
-original_photo = PhotoImage(file='final.png')
-display_photo = original_photo.subsample(9, 9)
-canvas.create_image(330, 10, anchor=NW, image=display_photo)
-
-# Lables of the window application
-lable_choose_file = Label(root, text='Выберите файл:      ', bg='grey', fg='white',
-                          font='Courier 20')  # 20 symbols in a line
-lable_choose_file.place(x=30, y=70)
-label_Percent = Label(root, text='Введите размер пени:\n ', bg='grey', fg='white', font='Courier 20')
-label_Percent.place(x=30, y=130)
-label_Time = Label(root, text='Введите количество  \n'
-                              'дней на оплату: ', bg='grey', fg='white', font='Courier 20')
-label_Time.place(x=30, y=200)
-lable_place_output = Label(root, text='Выберите место для  \nсохранения файла:', bg='grey', fg='white',
-                           font='Courier 20')
-lable_place_output.place(x=30, y=320)
-
-label_Error = Label(root, text='', bg='lightgrey', fg='lightgrey', font='Courier 20')
-label_Error.place()
-# label_File = Label(root, text='', bg='lightgrey', fg='lightgrey')
-# label_File.place(x=50, y=100)
-
-# Text boxes of the window application
-entry_Percent = Entry(root, width=11, font=('Ubuntu', 30))
-entry_Percent.place(x=400, y=140)
-entry_Time = Entry(root, width=11, font=('Ubuntu', 30))
-entry_Time.place(x=400, y=210)
-
-# Buttons of the window application
-button_Main = Button(root, text='Рассчитать', bg='white', fg='black', font='15')
-button_Main.bind('<Button-1>', lambda event: start(entry_Percent.get(), entry_Time.get()))
-
-button_File = Button(root, text='Выбор файла: ', font='Times 11', command=insert_file)
-button_File.bind('<Button-2>')
-button_File.place(x=400, y=75)
-
-button_Output_File = Button(root, text='Выберите файл:', font='Times 11', command=output_file_fun)
-button_Output_File.bind('<Button-3>')
-button_Output_File.place(x=400, y=335)
-
-btn_clean = Button(root, text='Отменить', bg='white', fg='black', font='15', command=clean)
-btn_clean.bind('<Button-4>')
-
-bnt_calendar_days = Button(text='Календарные дни', command=button_colour_change_gc)
-bnt_calendar_days.bind('<Button-5>')
-bnt_calendar_days.place(x=400, y=280)
-
-bnt_working_days = Button(root, text='Рабочие дни', bg='grey', fg='black', command=button_colour_change_gw)
-bnt_calendar_days.bind('<Button-6>')
-bnt_working_days.place(x=200, y=280)
-
-button_Exit = Button(root, text='Выход', bg='white', fg='black', font='15', command=exit)
-button_Exit.bind('<Button-7>')
+photoimage = PhotoImage(file='final.png')
+img = photoimage
+cnv_image = Canvas(root,width=64,height=64,bg='#d9d9d9')
+cnv_image.create_image(32,32,image=img)
+cnv_image.grid(row=0,column=0,columnspan=3)
 
 # Image for Button '?'
 or_bnt_photo = PhotoImage(file='question.png')
 re_bnt_photo = or_bnt_photo.subsample(20, 20)
 
+
+lbl_file = Label(root,text='Данные для расчета')
+lbl_file.grid(row=1 , column=0,pady=20, sticky=E, padx = 20)
+btn_file = Button(root,command=insert_file)
+btn_file.grid(row=1 , column=1,pady=20, sticky=W, padx = 20)
+
+lbl_size = Label(root)
+lbl_size.grid(row=2 , column=0,pady=20, sticky=E, padx = 20)
+ent_size = Entry(root,textvariable=data_size)
+ent_size.grid(row=2 , column=1,pady=20, sticky=W, padx = 20)
+
+
+lbl_days = Label(root)
+lbl_days.grid(row=3 , column=0,pady=20, sticky=E, padx = 20)
+ent_days = Entry(root,textvariable=data_days)
+ent_days.grid(row=3 , column=1,pady=20, sticky=W, padx = 20)
+
+
+lbl_type_days = Label(root,text='Тип дней')
+lbl_type_days.grid(row=4 , column=0,pady=20, sticky=E, padx = 20)
+btn_type_days = Button(text='Переключить рабочие/календарные дни',command=change_type_days)
+btn_type_days.grid(row=4,column=1, sticky=W, padx = 20)
+
+
+lbl_outfile = Label(root,text='Выходные данные')
+lbl_outfile.grid(row=5 , column=0,pady=20, sticky=E, padx = 20)
+btn_outfile = Button(root,command=output_file_fun)
+btn_outfile.grid(row=5 , column=1,pady=20, sticky=W, padx = 20)
+
+
+btn_days = Button(root,text='Выход',command=exit)
+btn_days.grid(row=6 , column=0)
+btn_days = Button(root,text='Рассчитать',command=check_and_calc)
+btn_days.grid(row=6 , column=1)
+btn_days = Button(root,text='Очистить',comman=clean)
+btn_days.grid(row=6 , column=2)
+
+lbl_size_form1 = Label(root,width=50,bg=FRM_BG)
+lbl_size_form1.grid(row=7,column=0)
+
+lbl_size_form2 = Label(root,width=40,bg=FRM_BG)
+lbl_size_form2.grid(row=7,column=1)
+
+
+clean()
+
+
+# ~ # Icons for different platforms
+platformD = system()
+if platformD == 'Darwin':
+	img = Image("photo", file="icon.gif")  # GIF
+	root.call('wm', 'iconphoto', root._w, img)
+elif platformD == 'Windows':
+	logo_image = 'icon.ico'
+	root.iconbitmap(logo_image)
+else:
+	logo_image = '@icon.xbm'
+	root.iconbitmap(logo_image)
+
+
+
+#############
+
 # Button '?'
-bnt_question_1 = Button(root)
-bnt_question_1.config(image=re_bnt_photo, height=25, width=25)
-bnt_question_1.place(x=660, y=150)
-h1 = HoverInfo(bnt_question_1, text='Введите целое число/\nчисло с разделительной точкой')
+btn_help1 = Button(root)
+btn_help1.config(image=re_bnt_photo, height=25, width=25)
+btn_help1.grid(row=2,column=3, sticky=W, padx = 20)
+h1 = HoverInfo(btn_help1, text='Введите целое число/\nчисло с разделительной точкой')
 
-bnt_question_2 = Button(root)
-bnt_question_2.config(image=re_bnt_photo, height=25, width=25)
-bnt_question_2.place(x=660, y=215)
-h2 = HoverInfo(bnt_question_2, text='Введите целое число')
+btn_help2 = Button(root)
+btn_help2.config(image=re_bnt_photo, height=25, width=25)
+btn_help2.grid(row=3,column=3, sticky=W, padx = 20)
+h2 = HoverInfo(btn_help2, text='Введите целое число')
 
-bnt_question_3 = Button(root)
-bnt_question_3.config(image=re_bnt_photo, height=25, width=25)
-bnt_question_3.place(x=660, y=275)
-h3 = HoverInfo(bnt_question_3, text='Выберите по каким дням\nбудет считаться отстрочка')
+btn_help3 = Button(root)
+btn_help3.config(image=re_bnt_photo, height=25, width=25)
+btn_help3.grid(row=4,column=3, sticky=W, padx = 20)
+h3 = HoverInfo(btn_help3, text='Выберите по каким дням\nбудет считаться отстрочка')
 
-bnt_question_4 = Button(root)
-bnt_question_4.config(image=re_bnt_photo, height=25, width=25)
-bnt_question_4.place(x=660, y=335)
+btn_help4 = Button(root)
+btn_help4.config(image=re_bnt_photo, height=25, width=25)
+btn_help4.grid(row=5,column=3, sticky=W, padx = 20)
+h4 = HoverInfo(btn_help4, text='Выберите файл\nдля вывода данных')
+#############
 
-placeWidget() # Позиционировать кнопки
-h4 = HoverInfo(bnt_question_4, text='Выберите файл\nдля вывода данных')
+
 root.mainloop()
