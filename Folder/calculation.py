@@ -74,7 +74,7 @@ def write_info(report, output_file_name):
     fo=open(output_file_name, 'w', encoding='utf-16') # Information is outputed to the doc format
     for elem in report[0]:
         fo.write(elem + '\n')
-        fo.write(f'Общая сумма штрафа составила {report[1]} рублей')
+    fo.write(f'Общая сумма штрафа составила {report[1]} рублей')
     fo.close()
 
 
@@ -128,8 +128,8 @@ def makeReport(f, percent, firstYear):
             output_list.append((f'Количество дней - {f[i][0] - begin + 1} ' +
                                 (f'дней с {dayToStr(begin, firstYear)} по {dayToStr(f[i][0], firstYear)} '
                                  if f[i][0] - begin > 0 else f'день {dayToStr(begin, firstYear)} числа ') +
-                                f'задолженность составила {(f[i][0] - begin + 1) * f[i][1]}' +
-                    f' штраф {(f[i][0] - begin + 1) * f[i][2]}, пени = {percent}%, формула расчета: сумма штрафа = {(f[i][0] - begin + 1) *f[i][1]}/100*{percent}\n'))
+                                f'задолженность составила {round((f[i][0] - begin + 1) * f[i][1], 2)}' +
+                    f' штраф {round((f[i][0] - begin + 1) * f[i][2], 2)}, пени = {percent}%, формула расчета: сумма штрафа = {(f[i][0] - begin + 1) *f[i][1]}/100*{percent}\n'))
             final_to_pay += (f[i][0] - begin + 1) * f[i][2]         
         if circle_body and f[i][1] != f[i + 1][1]:
             begin = f[i + 1][0]
