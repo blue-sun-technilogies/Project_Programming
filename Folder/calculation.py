@@ -1,24 +1,26 @@
-'''
-calculation.py
-Shirmankina Ekaterina - Final_Main_v6 -  - 5/6/2019 - 19:04
-
-Requre: pip3 install requests
-'''
+global some_error
+some_error = False
+global type_of_error 
+type_of_error = ''
+global to_user_error
+to_user_error = ''
 
 def first_data_check(data):  # This function check the position of the information in the file
     if data[0][0] == '':
-        for i in range(0, len(data) + 1):
-            data[i][0] = data[i][6]
-            data[i][1] = data[i][7]
-            data[i][3] = data[i][9]
-            data[i][5] = data[i][11]
+        try:
+            for i in range(0, len(data) + 1):
+                data[i][0] = data[i][6]
+                data[i][1] = data[i][7]
+                data[i][3] = data[i][9]
+                data[i][5] = data[i][11]
+        except:
+            global some_error
+            some_error = True
+            global type_of_error
+            type_of_error += 'The problem in file, the finding of the info position'
     return (data)
 
-'''
-Подтягивает информацию с сайта о праздничных и рабочих днях в РФ в след формате: [49,49,49,48...] 
-Далее преобразуют в след. формат [1, 1, 1, 0...], где (1 - выходные дни и 0 - будние дни на output).
-Возвращает список, где индекс, начинающийся от 0 - номер дня в году, 1 для вых. и 0 для буднего (int).
-'''
+
 def makeCalendarList(firstYear=0):
     import requests                                # Requre: pip3 install requests
     url = 'https://isdayoff.ru/api/getdata?year='  # Используем API для выходных дней
@@ -33,30 +35,36 @@ def read_info(file_name):  # Add check of all lines
     file_name = open(file_name, 'r', encoding='utf-8')  # Python3 need not codecs modul for encoding.
     chec_to_sit_in_end = False  # Finding the place of data
     for line in file_name:
-        if (line[0].isdigit() and line[1].isdigit() and line[2] == '.') or chec_to_sit_in_end:
-            part = line.split(',')
-            row = [
-                part[0], part[1], part[2], part[3],
-                part[4], part[5], part[6], part[7],
-                part[8], part[9], part[10],
-                part[11], part[12], part[12],
-                part[13]
-            ]
-            data.append(row)
-        elif (chec_to_sit_in_end == False):
-            part = line.split(',')
-            if part[0] == '' and len(part) > 6:
-                if len(part[6]) >= 3:
-                    if part[6][0].isdigit() and part[6][1].isdigit and part[6][2] == '.':
-                        row = [
-                            part[0], part[1], part[2], part[3],
-                            part[4], part[5], part[6], part[7],
-                            part[8], part[9], part[10],
-                            part[11], part[12], part[12],
-                            part[13]
-                        ]
-                        data.append(row)
-                        chec_to_sit_in_end = True
+        try:
+            if (line[0].isdigit() and line[1].isdigit() and line[2] == '.') or chec_to_sit_in_end:
+                part = line.split(',')
+                row = [
+                    part[0], part[1], part[2], part[3],
+                    part[4], part[5], part[6], part[7],
+                    part[8], part[9], part[10],
+                    part[11], part[12], part[12],
+                    part[13]
+                ]
+                data.append(row)
+            elif (chec_to_sit_in_end == False):
+                part = line.split(',')
+                if part[0] == '' and len(part) > 6:
+                    if len(part[6]) >= 3:
+                        if part[6][0].isdigit() and part[6][1].isdigit and part[6][2] == '.':
+                            row = [
+                                part[0], part[1], part[2], part[3],
+                                part[4], part[5], part[6], part[7],
+                                part[8], part[9], part[10],
+                                part[11], part[12], part[12],
+                                part[13]
+                            ]
+                            data.append(row)
+                            chec_to_sit_in_end = True
+        except:
+            global some_error
+            global type_of_error
+            some_error = True
+            type_of_error += ' The problem with the accuracy of data in some line (read_info function)'
     file_name.close()  #######
     return data
 
@@ -72,29 +80,41 @@ def write_info(report, output_file_name):
 def update_outcomes(outcomes):  # Special for calculation, this function united information from one day
     outcomes_updated = []
     i = 0
-    while i < len(outcomes):
-        outcomes_updated.append(outcomes[i])
-        if i + 1 < len(outcomes):
-            while outcomes[i + 1][0] == outcomes[i][0]:
-                outcomes_updated[len(outcomes_updated) - 1][3] += float(outcomes[i + 1][3])
-                i += 1
-                if i + 1 == len(outcomes):
-                    break
-        i += 1
+    try:
+        while i < len(outcomes): 
+            outcomes_updated.append(outcomes[i])
+            if i + 1 < len(outcomes):
+                while outcomes[i + 1][0] == outcomes[i][0]:
+                    outcomes_updated[len(outcomes_updated) - 1][3] += float(outcomes[i + 1][3])
+                    i += 1
+                    if i + 1 == len(outcomes):
+                        break
+            i += 1
+    except:
+        global some_error
+        global type_of_error
+        some_error = True
+        type_of_error += ' Some error in update outcomes function'
     return (outcomes_updated)
 
 def incomes_update(incomes):  # This function is needed for calculation, again united the information from one day
     incomes_updated = []
     i = 0
-    while i < len(incomes):
-        incomes_updated.append(incomes[i])
-        if i + 1 < len(incomes):
-            while incomes[i + 1][0] == incomes_updated[len(incomes_updated) - 1][0]:
-                incomes_updated[len(incomes_updated) - 1][5] += float(incomes[i + 1][5])
-                i += 1
-                if i + 1 == len(incomes):
-                    break
-        i += 1
+    try:
+        while i < len(incomes):
+            incomes_updated.append(incomes[i])
+            if i + 1 < len(incomes):
+                while incomes[i + 1][0] == incomes_updated[len(incomes_updated) - 1][0]:
+                    incomes_updated[len(incomes_updated) - 1][5] += float(incomes[i + 1][5])
+                    i += 1
+                    if i + 1 == len(incomes):
+                        break
+            i += 1
+    except:
+        global some_error
+        global type_of_error
+        some_error = True
+        type_of_error += ' Some problem in incomes updated function'
     return (incomes_updated)
 
 def makeReport(f, percent, firstYear):
@@ -112,16 +132,7 @@ def makeReport(f, percent, firstYear):
             begin = f[i + 1][0]
     return output_list
 
-'''
-# Прототип функции по нахождению расстояния между датами в днях. Аргумент - ? , возвращаемое значение - ?
-def days_between(d1, d2):
-    d1 = datetime.strptime(d1, "%Y-%m-%d")
-    d2 = datetime.strptime(d2, "%Y-%m-%d")
-    return abs((d2 - d1).days)
-'''
 
-''' List for date convert
-'''
 days_in_months = [
     0,
     31,
@@ -143,9 +154,7 @@ def is_intercalary_year(year):
     year -= 2000  # for yy only
     return (year % 4 == 0 and year % 100 != 0 or year % 400 == 0)  # Високосный год для грегорианского календаря.
 
-''' Преобразует day, month, year и firstYear (все int) в номер дня, считая с января firstYear (18 значит 2018).
-1 января года указанного в файле это цифра 1, второе января это 2 итд.
-'''
+
 
 def dayToInt(day, month, year, firstYear):
     # print("DEBUG dayToInt("+str(day)+', '+str(month)+', '+str(year)+', '+str(firstYear)+') ', end='')
@@ -159,27 +168,23 @@ def dayToInt(day, month, year, firstYear):
     # print('returns '+str(day))
     return day
 
-'''
-Функция преобразует в массиве data дату (data[i][0]) из строки в целое число, возвращает кортеж (data, номер_первого_года).
-This function is need for calculation. It transfer the dates to a numbers, which are used for calculation.
-data - list[][][] from data.csv; return - tuple( modified data[][][], firstYear - год как int, 18 для 2018)
-Берём первый элемент из data (это data[i][0]), это дата формата дд.мм.гг, д.м.гг, или дд.м.гг. 
-(firstYear = int(data[0][0][6] + data[0][0][7]) - это номер года, 18 для 2018).
-Надо запомнить какой год был указан в этой дате и пронумеровать дальше все даты следующим образом:
-1 января года указанного в файле это цифра 1, второе января это 2 итд.
-'''
 
 def dataDatesConvertToInt(data):
     firstYear = int(data[0][0][6:8])  # 18 for 2018
-    for i in range(0, len(data)):
-        lst = data[i][0].split(',')[0].split(
-            '.')  # Отделим по ',' дату, затем разделим дату по '.' на список строк.
-        data[i][0] = dayToInt(int(lst[0]), int(lst[1]), int(lst[2]), firstYear)
+    try:
+        for i in range(0, len(data)):
+            lst = data[i][0].split(',')[0].split(
+                '.')  # Отделим по ',' дату, затем разделим дату по '.' на список строк.
+            data[i][0] = dayToInt(int(lst[0]), int(lst[1]), int(lst[2]), firstYear)
+    except:
+        global some_error
+        global type_of_error
+        global to_user_error
+        some_error = True
+        type_of_error += 'Problem in the function dataDatesConvertToInt'
+        to_user_error += 'Проверьте корректность дат в файле, убедитесь, что даты разделены точкой, а не запятой, в случае если все верно, свяжитесь с нами и опишите проблему'
     return (data, firstYear)  # Tuple - (Total number of days, include current_day; год как int, 18 для 2018).
 
-''' Converts date (int) and firstYear (int) to return str: dd.mm.yy.
-Первым днем (1) считается 1 января указанного года firstYear (18 из 2018).
-'''
 
 def dayToStr(date, firstYear):
     # print("DEBUG dayToStr(date="+str(date), end='')
@@ -219,9 +224,10 @@ def mainCalc(percent, late_time, Working_Days, file_name, output_file_name):
 
     for i in range(0, len(
             data)):  # This part shoul be rewrited, in fact tehre are 4 main and one additional type of words and we should separete them
-        if data[i][1][0] == 'П' and data[i][1][3] == 'х':
+        if data[i][1][0] == 'П' and data[i][1][3] == 'х' or data[i][1][0] == 'О' and data[i][1][1] == 'Т':
             data[i][5] = float(data[i][5])
             incomes.append(data[i])
+        
         elif data[i][1][0] == 'О' and data[i][1][2] == 'л':
             data[i][3] = float(data[i][3])
             outcomes.append(data[i])
@@ -240,82 +246,87 @@ def mainCalc(percent, late_time, Working_Days, file_name, output_file_name):
     fee_fedbak_final = []
     fee_fedbak = 0
     i = start_date
-    while i <= last_date:
-        check_to_enter = True
-        if not_used_outcomes != 0:  # Check for the elder outcomes for which user still need to pay
-            if incomes_updated[current_incomes_number][5] - not_used_outcomes >= 0:
-                incomes_updated[current_incomes_number][5] -= not_used_outcomes
-                not_used_outcomes = 0
-            else:
-                not_used_outcomes -= incomes_updated[current_incomes_number][5]
-                incomes_updated[current_incomes_number][5] = 0
-                current_incomes_number += 1
-        if outcomes_updated[current_outcomes_number][
-            0] == i and check_to_enter_outcomes:  # Check if next outcome is going to be today
-            if incomes_updated[current_incomes_number][5] - outcomes_updated[current_outcomes_number][3] >= 0:
-                incomes_updated[current_incomes_number][5] -= outcomes_updated[current_outcomes_number][3]
-                outcomes_updated[current_outcomes_number][3] = 0
-                current_outcomes_number += 1  # Switch to next outcomes_updated date
-                if incomes_updated[current_incomes_number][5] == 0:
-                    current_incomes_number += 1
-            else:
-                not_used_outcomes = outcomes_updated[current_outcomes_number][3] - \
-                                    incomes_updated[current_incomes_number][5]
-                incomes_updated[current_incomes_number][5] = 0
-                current_incomes_number += 1
-                outcomes_updated[current_outcomes_number][3] = 0
-                if current_outcomes_number + 1 < len(outcomes_updated):
-                    current_outcomes_number += 1
+    try:
+        while i <= last_date:
+            check_to_enter = True
+            if not_used_outcomes != 0:  # Check for the elder outcomes for which user still need to pay
+                if incomes_updated[current_incomes_number][5] - not_used_outcomes >= 0:
+                    incomes_updated[current_incomes_number][5] -= not_used_outcomes
+                    not_used_outcomes = 0
                 else:
-                    check_to_enter_outcomes = False
-                i -= 1
-                check_to_enter = False
-        if Working_Days:
-            if i - incomes_updated[current_incomes_number][0] > late_time and check_to_enter:
-                quantity_working = 0
-                for k in range(incomes_updated[current_incomes_number][0] - 1, i):
-                    if calend[k] == 0:
-                        quantity_working += 1
-                if quantity_working > late_time:
-                    fee_fedbak = 0
-                    current_sum_to_pay = incomes_updated[current_incomes_number][5]
-                    if calend[current_incomes_number - 1] == 0:
-                        fee_to_pay += (percent) * (incomes_updated[current_incomes_number][5])
-                        fee_fedbak = (percent) * (incomes_updated[current_incomes_number][5])
-                        j = 1
-                        if incomes_updated[current_incomes_number][0] != last_date and current_incomes_number + j <= (
+                    not_used_outcomes -= incomes_updated[current_incomes_number][5]
+                    incomes_updated[current_incomes_number][5] = 0
+                    current_incomes_number += 1
+            if outcomes_updated[current_outcomes_number][
+                0] == i and check_to_enter_outcomes:  # Check if next outcome is going to be today
+                if incomes_updated[current_incomes_number][5] - outcomes_updated[current_outcomes_number][3] >= 0:
+                    incomes_updated[current_incomes_number][5] -= outcomes_updated[current_outcomes_number][3]
+                    outcomes_updated[current_outcomes_number][3] = 0
+                    current_outcomes_number += 1  # Switch to next outcomes_updated date
+                    if incomes_updated[current_incomes_number][5] == 0:
+                        current_incomes_number += 1
+                else:
+                    not_used_outcomes = outcomes_updated[current_outcomes_number][3] - \
+                                        incomes_updated[current_incomes_number][5]
+                    incomes_updated[current_incomes_number][5] = 0
+                    current_incomes_number += 1
+                    outcomes_updated[current_outcomes_number][3] = 0
+                    if current_outcomes_number + 1 < len(outcomes_updated):
+                        current_outcomes_number += 1
+                    else:
+                        check_to_enter_outcomes = False
+                    i -= 1
+                    check_to_enter = False
+            if Working_Days:
+                if i - incomes_updated[current_incomes_number][0] > late_time and check_to_enter:
+                    quantity_working = 0
+                    for k in range(incomes_updated[current_incomes_number][0] - 1, i):
+                        if calend[k] == 0:
+                            quantity_working += 1
+                    if quantity_working > late_time:
+                        fee_fedbak = 0
+                        current_sum_to_pay = incomes_updated[current_incomes_number][5]
+                        if calend[current_incomes_number - 1] == 0:
+                            fee_to_pay += (percent) * (incomes_updated[current_incomes_number][5])
+                            fee_fedbak = (percent) * (incomes_updated[current_incomes_number][5])
+                            j = 1
+                            if incomes_updated[current_incomes_number][0] != last_date and current_incomes_number + j <= (
+                                    len(incomes_updated) - current_incomes_number):
+                                while i - incomes_updated[current_incomes_number + j][0] > late_time:
+                                    if calend[current_incomes_number - 1] == 0:
+                                        fee_to_pay += (percent) * (incomes_updated[current_incomes_number + j][5])
+                                        current_sum_to_pay += incomes_updated[current_incomes_number + j][5]
+                                        fee_fedbak += (percent) * (incomes_updated[current_incomes_number + j][5])
+                                        j += 1
+                                    if incomes_updated[current_incomes_number][0] == last_date or j == (
+                                            len(incomes_updated) - current_incomes_number):
+                                        break
+            elif i - incomes_updated[current_incomes_number][0] > late_time and check_to_enter:  # Start checkingfor fees
+                fee_fedbak = 0
+                current_sum_to_pay = incomes_updated[current_incomes_number][5]  # Used for output in final
+                fee_to_pay += (percent) * (incomes_updated[current_incomes_number][5])
+                fee_fedbak = (percent) * (incomes_updated[current_incomes_number][5])
+                j = 1
+                if incomes_updated[current_incomes_number][0] != last_date and current_incomes_number + j <= (
+                        len(incomes_updated) - current_incomes_number):
+                    while i - incomes_updated[current_incomes_number + j][0] > late_time:
+                        fee_to_pay += (percent) * (incomes_updated[current_incomes_number + j][5])
+                        current_sum_to_pay += incomes_updated[current_incomes_number + j][5]
+                        fee_fedbak += (percent) * (incomes_updated[current_incomes_number + j][5])
+                        j += 1
+                        if incomes_updated[current_incomes_number][0] == last_date or j == (
                                 len(incomes_updated) - current_incomes_number):
-                            while i - incomes_updated[current_incomes_number + j][0] > late_time:
-                                if calend[current_incomes_number - 1] == 0:
-                                    fee_to_pay += (percent) * (incomes_updated[current_incomes_number + j][5])
-                                    current_sum_to_pay += incomes_updated[current_incomes_number + j][5]
-                                    fee_fedbak += (percent) * (incomes_updated[current_incomes_number + j][5])
-                                    j += 1
-                                if incomes_updated[current_incomes_number][0] == last_date or j == (
-                                        len(incomes_updated) - current_incomes_number):
-                                    break
-        elif i - incomes_updated[current_incomes_number][0] > late_time and check_to_enter:  # Start checkingfor fees
-            fee_fedbak = 0
-            current_sum_to_pay = incomes_updated[current_incomes_number][5]  # Used for output in final
-            fee_to_pay += (percent) * (incomes_updated[current_incomes_number][5])
-            fee_fedbak = (percent) * (incomes_updated[current_incomes_number][5])
-            j = 1
-            if incomes_updated[current_incomes_number][0] != last_date and current_incomes_number + j <= (
-                    len(incomes_updated) - current_incomes_number):
-                while i - incomes_updated[current_incomes_number + j][0] > late_time:
-                    fee_to_pay += (percent) * (incomes_updated[current_incomes_number + j][5])
-                    current_sum_to_pay += incomes_updated[current_incomes_number + j][5]
-                    fee_fedbak += (percent) * (incomes_updated[current_incomes_number + j][5])
-                    j += 1
-                    if incomes_updated[current_incomes_number][0] == last_date or j == (
-                            len(incomes_updated) - current_incomes_number):
-                        break
-        if fee_to_pay != 0:
-            #   print(f'Задолженность за {i} день составляет {current_sum_to_pay} рублей, штраф составляет {fee_fedbak} рублей')
-            fee_fedbak_final.append([i, current_sum_to_pay, fee_fedbak])
-        else:
-            #   print(f'Задолженность за {i} день составляет 0 рублей, штраф составляет {fee_fedbak} рублей')
-            fee_fedbak_final.append([i, 0, fee_fedbak])
-        i += 1
+                            break
+            if fee_to_pay != 0:
+                #   print(f'Задолженность за {i} день составляет {current_sum_to_pay} рублей, штраф составляет {fee_fedbak} рублей')
+                fee_fedbak_final.append([i, current_sum_to_pay, fee_fedbak])
+            else:
+                #   print(f'Задолженность за {i} день составляет 0 рублей, штраф составляет {fee_fedbak} рублей')
+                fee_fedbak_final.append([i, 0, fee_fedbak])
+            i += 1
+    except:
+        global some_error
+        global type_of_error
+        some_error = True
+        type_of_error += ' Some errors in main calculations'
     write_info(makeReport(fee_fedbak_final, percent, firstYear), output_file_name)
-
