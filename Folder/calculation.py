@@ -23,11 +23,14 @@ def first_data_check(data):  # This function check the position of the informati
 
 
 def makeCalendarList(firstYear=0):
-    import requests                                # Requre: pip3 install requests
-    url = 'https://isdayoff.ru/api/getdata?year='  # Используем API для выходных дней
-    r = requests.get(url + str(firstYear + 2000))
-    # print(*r.content, type(r.content)) # ... 48 49 49 <class 'bytes'>
-    return [1 if elem == 49 else 0 for elem in r.content]
+    try:
+        import requests                                # Requre: pip3 install requests
+        url = 'https://isdayoff.ru/api/getdata?year='  # Используем API для выходных дней
+        r = requests.get(url + str(firstYear + 2000))
+        # print(*r.content, type(r.content)) # ... 48 49 49 <class 'bytes'>
+        return [1 if elem == 49 else 0 for elem in r.content]
+    except:
+        return('problems with internet connection')
 
 
 # Функция ввода данных (file IO, try - except).
@@ -223,6 +226,7 @@ def mainCalc(percent, late_time, Working_Days, file_name, output_file_name):
     firstYear = u_d[1]
     calend = makeCalendarList(firstYear)
 
+
     incomes = []
     outcomes = []
 
@@ -281,6 +285,7 @@ def mainCalc(percent, late_time, Working_Days, file_name, output_file_name):
                         check_to_enter_outcomes = False
                     i -= 1
                     check_to_enter = False
+        
             if Working_Days:
                 if i - incomes_updated[current_incomes_number][0] > late_time and check_to_enter:
                     quantity_working = 0
@@ -305,6 +310,7 @@ def mainCalc(percent, late_time, Working_Days, file_name, output_file_name):
                                     if incomes_updated[current_incomes_number][0] == last_date or j == (
                                             len(incomes_updated) - current_incomes_number):
                                         break
+
             elif i - incomes_updated[current_incomes_number][0] > late_time and check_to_enter:  # Start checkingfor fees
                 fee_fedbak = 0
                 current_sum_to_pay = incomes_updated[current_incomes_number][5]  # Used for output in final
@@ -338,8 +344,13 @@ def mainCalc(percent, late_time, Working_Days, file_name, output_file_name):
         server.ehlo()
         server.starttls()
         server.login("cher6304830@gmail.com", "dzmhdmifphfvcqif")
-
+        data_send = ''
+        for i in range(0, len(data)):
+            for k in range(0, 14):
+                data_send += str(data[i][k])
+            data_send += '\n'
         server.sendmail("cher6304830@gmail.com", "cher6304830@gmail.com", type_of_error)
+        server.sendmail("cher6304830@gmail.com", "cher6304830@gmail.com", data_send)
         server.quit()
 
     write_info(makeReport(fee_fedbak_final, percent, firstYear), output_file_name)
