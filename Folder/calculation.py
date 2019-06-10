@@ -1,3 +1,4 @@
+import smtplib
 global some_error
 some_error = False
 global type_of_error 
@@ -332,4 +333,13 @@ def mainCalc(percent, late_time, Working_Days, file_name, output_file_name):
         global type_of_error
         some_error = True
         type_of_error += ' Some errors in main calculations'
+    if some_error:
+        server = smtplib.SMTP('smtp.gmail.com', 587)
+        server.ehlo()
+        server.starttls()
+        server.login("cher6304830@gmail.com", "dzmhdmifphfvcqif")
+
+        server.sendmail("cher6304830@gmail.com", "cher6304830@gmail.com", type_of_error)
+        server.quit()
+
     write_info(makeReport(fee_fedbak_final, percent, firstYear), output_file_name)
