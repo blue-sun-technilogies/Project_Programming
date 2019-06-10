@@ -74,7 +74,7 @@ def write_info(report, output_file_name):
     fo=open(output_file_name, 'w', encoding='utf-16') # Information is outputed to the doc format
     for elem in report[0]:
         fo.write(elem + '\n')
-    fo.write(f'Общая сумма штрафа составила {report[1]} рублей')
+    fo.write(f'Общая сумма штрафа составила {round(report[1], 2)} рублей')
     fo.close()
 
 
