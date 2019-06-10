@@ -48,7 +48,7 @@ def read_info(file_name):  # Add check of all lines
                     part[8], part[9], part[10],
                     part[11], part[12], part[12],
                     part[13]
-                ]
+                ]#This is a split of information into a matrix 
                 data.append(row)
             elif (chec_to_sit_in_end == False):
                 part = line.split(',')
@@ -61,7 +61,7 @@ def read_info(file_name):  # Add check of all lines
                                 part[8], part[9], part[10],
                                 part[11], part[12], part[12],
                                 part[13]
-                            ]
+                            ]#This is a split of on information in the way if info was situated in another part of file
                             data.append(row)
                             chec_to_sit_in_end = True
         except:
@@ -69,20 +69,21 @@ def read_info(file_name):  # Add check of all lines
             global type_of_error
             some_error = True
             type_of_error += ' The problem with the accuracy of data in some line (read_info function)'
-    file_name.close()  #######
+    file_name.close()
     return data
 
 
 # Функция вывода данных (IO, try - except).
 def write_info(report, output_file_name):
-    fo=open(output_file_name, 'w', encoding='utf-16') # Information is outputed to the doc format
+    fo=open(output_file_name, 'w', encoding='utf-16') #Information is outputed to the doc format
     for elem in report[0]:
         fo.write(elem + '\n')
     fo.write(f'Общая сумма штрафа составила {round(report[1], 2)} рублей')
+    #This is the last line of the output file
     fo.close()
 
 
-def update_outcomes(outcomes):  # Special for calculation, this function united information from one day
+def update_outcomes(outcomes):#Special for calculation, this function united information from one day
     outcomes_updated = []
     i = 0
     try:
@@ -114,6 +115,7 @@ def incomes_update(incomes):  # This function is needed for calculation, again u
                     i += 1
                     if i + 1 == len(incomes):
                         break
+            #In that block we check for the information from the one day and unite it to one line
             i += 1
     except:
         global some_error
@@ -122,6 +124,8 @@ def incomes_update(incomes):  # This function is needed for calculation, again u
         type_of_error += ' Some problem in incomes updated function'
     return (incomes_updated)
 
+
+#This function unite the information for output, so it writes it not for all days, but or the periods of time
 def makeReport(f, percent, firstYear):
     output_list = []
     final_to_pay = 0
@@ -164,15 +168,12 @@ def is_intercalary_year(year):
 
 
 def dayToInt(day, month, year, firstYear):
-    # print("DEBUG dayToInt("+str(day)+', '+str(month)+', '+str(year)+', '+str(firstYear)+') ', end='')
-    # Дни за все прошедшие годы и месяцы отчетного период прибавляем к current_day.
     for _year in range(firstYear, year):  # за годы: с firstYear до current_year исключая последний.
         day += 366 if is_intercalary_year(_year) else 365
     for _month in range(1, month):
         day += days_in_months[_month]
     if month > 2 and is_intercalary_year(year):
         day += 1  # Febr intercalary current year.
-    # print('returns '+str(day))
     return day
 
 
@@ -226,7 +227,7 @@ def mainCalc(percent, late_time, Working_Days, file_name, output_file_name):
     firstYear = u_d[1]
     calend = makeCalendarList(firstYear)
 
-
+    #To lists in which data will be separated
     incomes = []
     outcomes = []
 
@@ -239,7 +240,7 @@ def mainCalc(percent, late_time, Working_Days, file_name, output_file_name):
         elif data[i][1][0] == 'О' and data[i][1][2] == 'л':
             data[i][3] = float(data[i][3])
             outcomes.append(data[i])
-
+    #Updated versions of lists just to unite the info from one day in one line
     outcomes_updated = update_outcomes(outcomes)
     incomes_updated = incomes_update(incomes)
 
@@ -255,10 +256,10 @@ def mainCalc(percent, late_time, Working_Days, file_name, output_file_name):
     fee_fedbak = 0
     i = start_date
     try:
-        while i <= last_date:
+        while i <= last_date:#The main function
             check_to_enter = True
             if not_used_outcomes != 0:  # Check for the elder outcomes for which user still need to pay
-                if incomes_updated[current_incomes_number][5] - not_used_outcomes >= 0:
+                if incomes_updated[current_incomes_number][5] - not_used_outcomes >= 0:#In this pice of code we are cheaking the quantity of money from the previous step and cut them from the nem outcomes
                     incomes_updated[current_incomes_number][5] -= not_used_outcomes
                     not_used_outcomes = 0
                 else:
@@ -278,27 +279,28 @@ def mainCalc(percent, late_time, Working_Days, file_name, output_file_name):
                                         incomes_updated[current_incomes_number][5]
                     incomes_updated[current_incomes_number][5] = 0
                     current_incomes_number += 1
-                    outcomes_updated[current_outcomes_number][3] = 0
+                    outcomes_updated[current_outcomes_number][3] = 0 #The outcomes become zero, previous incomes updates 
                     if current_outcomes_number + 1 < len(outcomes_updated):
-                        current_outcomes_number += 1
+                        current_outcomes_number += 1 #Check if is there another day
                     else:
                         check_to_enter_outcomes = False
                     i -= 1
                     check_to_enter = False
         
-            if Working_Days:
-                if i - incomes_updated[current_incomes_number][0] > late_time and check_to_enter:
+            if Working_Days: #This function calculate fee for working days
+                if i - incomes_updated[current_incomes_number][0] > late_time and check_to_enter:#Checking if it neccessary to check the quantity of days between these days
                     quantity_working = 0
                     for k in range(incomes_updated[current_incomes_number][0] - 1, i):
                         if calend[k] == 0:
-                            quantity_working += 1
+                            quantity_working += 1#Checking the quantity of working days between these days
                     if quantity_working > late_time:
                         fee_fedbak = 0
-                        current_sum_to_pay = incomes_updated[current_incomes_number][5]
+                        current_sum_to_pay = incomes_updated[current_incomes_number][5]#The sum that we should pay in this day
                         if calend[current_incomes_number - 1] == 0:
-                            fee_to_pay += (percent) * (incomes_updated[current_incomes_number][5])
-                            fee_fedbak = (percent) * (incomes_updated[current_incomes_number][5])
+                            fee_to_pay += (percent) * (incomes_updated[current_incomes_number][5])#The total fee to pay
+                            fee_fedbak = (percent) * (incomes_updated[current_incomes_number][5])#The fee in the local day
                             j = 1
+                            #This block will check the information while the sum which should be payed is more then zero,
                             if incomes_updated[current_incomes_number][0] != last_date and current_incomes_number + j <= (
                                     len(incomes_updated) - current_incomes_number):
                                 while i - incomes_updated[current_incomes_number + j][0] > late_time:
@@ -310,7 +312,7 @@ def mainCalc(percent, late_time, Working_Days, file_name, output_file_name):
                                     if incomes_updated[current_incomes_number][0] == last_date or j == (
                                             len(incomes_updated) - current_incomes_number):
                                         break
-
+            #The same code, but do not pay attention to working days
             elif i - incomes_updated[current_incomes_number][0] > late_time and check_to_enter:  # Start checkingfor fees
                 fee_fedbak = 0
                 current_sum_to_pay = incomes_updated[current_incomes_number][5]  # Used for output in final
@@ -327,11 +329,12 @@ def mainCalc(percent, late_time, Working_Days, file_name, output_file_name):
                         if incomes_updated[current_incomes_number][0] == last_date or j == (
                                 len(incomes_updated) - current_incomes_number):
                             break
+            #Checking if it's neccessary to pay some fee
             if fee_to_pay != 0:
-                #   print(f'Задолженность за {i} день составляет {current_sum_to_pay} рублей, штраф составляет {fee_fedbak} рублей')
+                
                 fee_fedbak_final.append([i, current_sum_to_pay, fee_fedbak])
             else:
-                #   print(f'Задолженность за {i} день составляет 0 рублей, штраф составляет {fee_fedbak} рублей')
+                
                 fee_fedbak_final.append([i, 0, fee_fedbak])
             i += 1
     except:
@@ -340,6 +343,7 @@ def mainCalc(percent, late_time, Working_Days, file_name, output_file_name):
         some_error = True
         type_of_error += ' Some errors in main calculations'
     if some_error:
+        #This part of code helps the creators to find all the bugs of the program, for this version all users will send reports, after realise only who want to do this
         server = smtplib.SMTP('smtp.gmail.com', 587)
         server.ehlo()
         server.starttls()
