@@ -67,7 +67,7 @@ def insert_file():
             messagebox.showerror('Неверная кодировка файла',
                                  'Неверная кодировка\
                                   файла.Требуется UTF-8-SIG,\
-                                   обнаружена' + detector.result['encoding'])
+                                   обнаружена ' + detector.result['encoding'])
         else:
             lbl_file['bg'] = LBL_BG_CLEAN
             btn_file['text'] = file_name
