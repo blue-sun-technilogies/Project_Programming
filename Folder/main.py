@@ -90,8 +90,8 @@ def clean():
     type_days_only_work = True
     data_size.set('')
     data_days.set('')
-    lbl_size['text'] = 'Размер (вещественное положительное значение)'
-    lbl_days['text'] = 'Количество дней (целое положительное значение)'
+    lbl_size['text'] = 'Пени (вещественное положительное значение)'
+    lbl_days['text'] = 'Количество дней без штрафа (целое положительное значение)'
     lbl_size['bg'] = LBL_BG_CLEAN
     lbl_days['bg'] = LBL_BG_CLEAN
     type_days_only_work = False
