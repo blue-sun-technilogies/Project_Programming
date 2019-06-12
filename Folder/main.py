@@ -6,7 +6,7 @@ from tkinter import filedialog as fd
 from tkinter import messagebox
 from platform import system
 from chardet.universaldetector import UniversalDetector
-from calculation import mainCalc
+from calculation import main_calc
 
 
 ENTRY_BG_CLEAN = '#FFFFFF'
@@ -15,10 +15,10 @@ FRM_BG = '#d9d9d9'
 LBL_BG_CLEAN = FRM_BG
 LBL_BG_ERROR = 'orange'
 
+
 '''
-The class  inherits the menu properties
-and is intended for the user interface
-is the output of the help system
+The class inherits the menu properties and is intended for
+the user interface is the output of the help system
 when hovering over the widget.
 '''
 
@@ -93,7 +93,7 @@ def output_file_fun():
         lbl_outfile['bg'] = LBL_BG_CLEAN
 
 
-# Clean entered values and file paths
+# Clean entered values and file paths.
 def clean():
     global output_file_name, file_name, type_days_only_work
     output_file_name = ''
@@ -102,8 +102,9 @@ def clean():
 
     data_size.set('')
     data_days.set('')
-    lbl_size['text'] = 'Размер (вещественное положительное значение)'
-    lbl_days['text'] = 'Количество дней (целое положительное значение)'
+    lbl_size['text'] = 'Пени  (вещественное положительное значение)'
+    lbl_days['text'] = 'Количество дней без штрафа \
+     (целое положительное значение)'
     lbl_size['bg'] = LBL_BG_CLEAN
     lbl_days['bg'] = LBL_BG_CLEAN
     type_days_only_work = False
@@ -116,7 +117,7 @@ def clean():
     lbl_file['bg'] = LBL_BG_CLEAN
 
 
-# Allow to change days type
+# Allow to change days type.
 def change_type_days():
     global type_days_only_work
     type_days_only_work = not type_days_only_work
@@ -126,12 +127,12 @@ def change_type_days():
         btn_type_days['text'] = 'Календарные дни'
 
 
-# Protect against incorrect user input
+# Protect against incorrect user input.
 def check_and_calc():
-    # print(root['bg'])
-    # print(data_size.get())
-    # print(data_days.get())
-    # print('дни:',type_days_only_work)
+    # ~ print(root['bg'])
+    # ~ print(data_size.get())
+    # ~ print(data_days.get())
+    # ~ print('дни:',type_days_only_work)
     data_size_str = data_size.get()
     data_size_str = data_size_str.replace(',', '.')
     data_days_str = data_days.get()
@@ -169,8 +170,8 @@ def check_and_calc():
 
     if check:
         print('данные верны, запускаю расчет')
-        # Call main calculation program
-        mainCalc(
+        # Call main calculation program.
+        main_calc(
             cleaned_data_size / 100,
             cleaned_data_days,
             type_days_only_work,
@@ -184,7 +185,7 @@ def check_and_calc():
 
 root = tkinter.Tk()
 # root.geometry('800x600')
-root.title('Калькулятор задолжности')  # window application name.
+root.title('Калькулятор задолжности')  # Window application name.
 root.resizable(False, False)
 root['bg'] = FRM_BG
 
@@ -198,7 +199,7 @@ cnv_image = tkinter.Canvas(root, width=64, height=64, bg='#d9d9d9')
 cnv_image.create_image(32, 32, image=img)
 cnv_image.grid(row=0, column=0, columnspan=3)
 
-# Image for Button '?'
+# Image for Button '?'.
 or_bnt_photo = tkinter.PhotoImage(file='question.png')
 re_bnt_photo = or_bnt_photo.subsample(20, 20)
 
@@ -251,10 +252,11 @@ lbl_size_form2.grid(row=7, column=1)
 
 clean()
 
-# Icons for different platforms
+
+# Icons for different platforms.
 platformD = system()
 if platformD == 'Darwin':
-    img = tkinter.Image("photo", file="icon.gif")  # GIF
+    img = tkinter.Image("photo", file="icon.gif")  # GIF.
     root.call('wm', 'iconphoto', root._w, img)
 elif platformD == 'Windows':
     logo_image = 'icon.ico'
@@ -263,7 +265,8 @@ else:
     logo_image = '@icon.xbm'
     root.iconbitmap(logo_image)
 
-# Button '?'
+
+# Button '?'.
 btn_help1 = tkinter.Button(root)
 btn_help1.config(image=re_bnt_photo, height=25, width=25)
 btn_help1.grid(row=2, column=3, sticky=tkinter.W, padx=20)
@@ -287,5 +290,6 @@ btn_help4 = tkinter.Button(root)
 btn_help4.config(image=re_bnt_photo, height=25, width=25)
 btn_help4.grid(row=5, column=3, sticky=tkinter.W, padx=20)
 h4 = HoverInfo(btn_help4, text='Выберите файл\nдля вывода данных')
+
 
 root.mainloop()
