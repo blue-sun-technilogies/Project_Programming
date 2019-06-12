@@ -129,10 +129,6 @@ def change_type_days():
 
 # Protect against incorrect user input.
 def check_and_calc():
-    # ~ print(root['bg'])
-    # ~ print(data_size.get())
-    # ~ print(data_days.get())
-    # ~ print('дни:',type_days_only_work)
     data_size_str = data_size.get()
     data_size_str = data_size_str.replace(',', '.')
     data_days_str = data_days.get()
@@ -184,7 +180,6 @@ def check_and_calc():
 
 
 root = tkinter.Tk()
-# root.geometry('800x600')
 root.title('Калькулятор задолжности')  # Window application name.
 root.resizable(False, False)
 root['bg'] = FRM_BG
