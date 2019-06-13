@@ -102,7 +102,7 @@ def clean():
 
     data_size.set('')
     data_days.set('')
-    lbl_size['text'] = 'Пени  (вещественное положительное значение)'
+    lbl_size['text'] = 'Пени  (целое положительное значение)'
     lbl_days['text'] = 'Количество дней без штрафа \
      (целое положительное значение)'
     lbl_size['bg'] = LBL_BG_CLEAN
@@ -140,7 +140,7 @@ def check_and_calc():
         ent_size['bg'] = ENTRY_BG_CLEAN
     else:
         check = False
-        lbl_size['text'] = 'Введите положительное вещественное значение'
+        lbl_size['text'] = 'Введите положительное значение'
         ent_size['bg'] = ENTRY_BG_ERROR
 
     if data_days_str.isdigit():
@@ -266,7 +266,7 @@ btn_help1 = tkinter.Button(root)
 btn_help1.config(image=re_bnt_photo, height=25, width=25)
 btn_help1.grid(row=2, column=3, sticky=tkinter.W, padx=20)
 h1 = HoverInfo(
-    btn_help1, text='Введите целое число/\nчисло с разделительной точкой'
+    btn_help1, text='Введите целое число'
 )
 
 btn_help2 = tkinter.Button(root)
