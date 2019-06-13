@@ -92,7 +92,7 @@ def update_outcomes(outcomes):
                 i += 1
                 if i + 1 == len(outcomes):
                     break
-            i += 1
+        i += 1
     return outcomes_updated
 
 
